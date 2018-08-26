@@ -1,8 +1,8 @@
 <div class="container">
   <div class="row justify-content-md-center mt-5">
       <div class="col-md-8">
-          <?php if (isset($_SESSION['errors-login-live'])) { ?>
-          <div class="alert alert-warning" role="alert">
+          <?php if (isset($_GET['errors-login-live'])) { ?>
+          <div class="alert alert-warning" role="alert" id="alert-live">
               Aucun utilisateur n'est associé à ce mail
           </div>
         <?php } ?>
@@ -79,3 +79,7 @@
 <script type="text/javascript"  src="<?php echo URL; ?>js/chosen.jquery.min.js"></script>
 <script src="<?php echo URL; ?>js/moment.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.bundle.min.js"></script>
+<script>
+if (document.getElementById('alert-live'))
+    setTimeout(function(){ document.getElementById('alert-live').remove() }, 4500);
+</script>

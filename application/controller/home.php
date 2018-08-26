@@ -25,6 +25,7 @@ class Home extends Controller
      */
     public function index()
     {
+        $_SESSION['errors-login-live'] = true;
         $auth = $this->authModel->getAuth();
         $errors = $this->authModel->getErrors();
 
@@ -82,8 +83,7 @@ class Home extends Controller
             {
                 $student = $this->studentModel->getByMail($mail);
                 if (!isset($student)) {
-                    $_SESSION['errors-login-live'] = true;
-                    header("location: " . URL);
+                    header("location: " . URL . '?errors-login-live=' . 1);
                     die();
                 }
 
