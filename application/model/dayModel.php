@@ -188,114 +188,117 @@ class DayModel
         $afternoon_absent = false;
         $this->date = Carbon::now("Europe/Paris");
 
-        if ($arrive !== null) {
-            // Check pangs loss
-            // Morning
-            if($arrive >= $this->morning_end) {
-                $morning_loss = $this->settings->absent_loss;
-            } elseif($arrive > $this->morning_late) {
-                $morning_loss += $arrive->diffInMinutes($this->morning_late) * $this->settings->losing_pang;
-            }
-            if($leave !== null && $leave < $this->morning_end) {
-                $morning_loss += $leave->diffInMinutes($this->morning_end) * $this->settings->losing_pang;
-            }
-            $morning_loss = ($morning_loss >= $this->settings->absent_loss) ? $this->settings->absent_loss : $morning_loss;
-            $morning_absent = ($morning_loss >= $this->settings->absent_loss) ? true : false;
+        if (!$this->date->isWeekend()) {
 
-            // Afternoon
-            if ($leave === null && $this->date >= $this->afternoon_end) {
-                $afternoon_loss += $this->settings->absent_loss;
-            } else {
-                if( $leave != null) {
-                    if ( $leave <= $this->afternoon_start) {
-                        $afternoon_loss += $this->settings->absent_loss;
-                    } elseif ($leave < $this->afternoon_leave) {
-                        $afternoon_loss += $leave->diffInMinutes($this->afternoon_leave) * $this->settings->losing_pang;
+            if ($arrive !== null) {
+                // Check pangs loss
+                // Morning
+                if($arrive >= $this->morning_end) {
+                    $morning_loss = $this->settings->absent_loss;
+                } elseif($arrive > $this->morning_late) {
+                    $morning_loss += $arrive->diffInMinutes($this->morning_late) * $this->settings->losing_pang;
+                }
+                if($leave !== null && $leave < $this->morning_end) {
+                    $morning_loss += $leave->diffInMinutes($this->morning_end) * $this->settings->losing_pang;
+                }
+                $morning_loss = ($morning_loss >= $this->settings->absent_loss) ? $this->settings->absent_loss : $morning_loss;
+                $morning_absent = ($morning_loss >= $this->settings->absent_loss) ? true : false;
+
+                // Afternoon
+                if ($leave === null && $this->date >= $this->afternoon_end) {
+                    $afternoon_loss += $this->settings->absent_loss;
+                } else {
+                    if( $leave != null) {
+                        if ( $leave <= $this->afternoon_start) {
+                            $afternoon_loss += $this->settings->absent_loss;
+                        } elseif ($leave < $this->afternoon_leave) {
+                            $afternoon_loss += $leave->diffInMinutes($this->afternoon_leave) * $this->settings->losing_pang;
+                        }
                     }
                 }
-            }
-            if ($arrive > $this->afternoon_start) {
-                $afternoon_loss += $arrive->diffInMinutes($this->afternoon_start) * $this->settings->losing_pang;
-            }
-            $afternoon_loss = ($afternoon_loss >= $this->settings->absent_loss) ? $this->settings->absent_loss : $afternoon_loss;
-            $afternoon_absent = ($afternoon_loss >= $this->settings->absent_loss) ? true : false;
-
-            // Check pangs gain
-            // Morning
-            if($arrive < $this->morning_start) {
-                if ($day->excused || !$morning_absent) {
-                    $arrive = ($arrive < $this->morning_early) ? $this->morning_early : $arrive;
-                    $morning_gain = $arrive->diffInMinutes($this->morning_start) * $this->settings->earning_pang;
+                if ($arrive > $this->afternoon_start) {
+                    $afternoon_loss += $arrive->diffInMinutes($this->afternoon_start) * $this->settings->losing_pang;
                 }
-            }
-
-            // Afternoon
-            if ($leave > $this->afternoon_extra) {
-                if ($day->excused || !$afternoon_absent) {
-                    $leave = ($leave > $this->afternoon_end) ? $this->afternoon_end : $leave;
-                    $afternoon_gain = $leave->diffInMinutes($this->afternoon_extra) * $this->settings->earning_pang;
-                }
-            }
-
-            if($day->excused) {
-                $morning_loss = 0;
-                $afternoon_loss = 0;
-            }
-
-            $tManual = $this->editPangModel->getEditPangByDay($id, $this->date->toDateString());
-            $editQuantity = 0;
-            foreach ($tManual as $manual){
-                $editQuantity += $manual->quantity;
-            }
-
-            $difference = $morning_gain - $morning_loss + $afternoon_gain - $afternoon_loss + $editQuantity;
-
-            // Update difference in days table
-            $sql = "UPDATE days SET difference = :diff WHERE student_id = :id AND id = :i";
-            $query = $this->db->prepare($sql);
-            $parameters = array(':diff' => $difference, ':id' => $id, ":i" => $day->id);
-            $query->execute($parameters);
-        }
-        else {
-            // Cheking Absent loss
-            // Morning
-            if($this->date > $this->morning_late) {
-                $morning_loss += $this->date->diffInMinutes($this->morning_late) * $this->settings->losing_pang;
-                $morning_loss = ($morning_loss >= $this->settings->absent_loss) ? $this->settings->absent_loss : $morning_loss;
-            }
-
-            // Afternoon
-            if($this->date->addHour(2) > $this->afternoon_start) {
-                $afternoon_loss += $this->date->diffInMinutes($this->afternoon_start) * $this->settings->losing_pang;
                 $afternoon_loss = ($afternoon_loss >= $this->settings->absent_loss) ? $this->settings->absent_loss : $afternoon_loss;
+                $afternoon_absent = ($afternoon_loss >= $this->settings->absent_loss) ? true : false;
+
+                // Check pangs gain
+                // Morning
+                if($arrive < $this->morning_start) {
+                    if ($day->excused || !$morning_absent) {
+                        $arrive = ($arrive < $this->morning_early) ? $this->morning_early : $arrive;
+                        $morning_gain = $arrive->diffInMinutes($this->morning_start) * $this->settings->earning_pang;
+                    }
+                }
+
+                // Afternoon
+                if ($leave > $this->afternoon_extra) {
+                    if ($day->excused || !$afternoon_absent) {
+                        $leave = ($leave > $this->afternoon_end) ? $this->afternoon_end : $leave;
+                        $afternoon_gain = $leave->diffInMinutes($this->afternoon_extra) * $this->settings->earning_pang;
+                    }
+                }
+
+                if($day->excused) {
+                    $morning_loss = 0;
+                    $afternoon_loss = 0;
+                }
+
+                $tManual = $this->editPangModel->getEditPangByDay($id, $this->date->toDateString());
+                $editQuantity = 0;
+                foreach ($tManual as $manual){
+                    $editQuantity += $manual->quantity;
+                }
+
+                $difference = $morning_gain - $morning_loss + $afternoon_gain - $afternoon_loss + $editQuantity;
+
+                // Update difference in days table
+                $sql = "UPDATE days SET difference = :diff WHERE student_id = :id AND id = :i";
+                $query = $this->db->prepare($sql);
+                $parameters = array(':diff' => $difference, ':id' => $id, ":i" => $day->id);
+                $query->execute($parameters);
             }
+            else {
+                // Cheking Absent loss
+                // Morning
+                if($this->date > $this->morning_late) {
+                    $morning_loss += $this->date->diffInMinutes($this->morning_late) * $this->settings->losing_pang;
+                    $morning_loss = ($morning_loss >= $this->settings->absent_loss) ? $this->settings->absent_loss : $morning_loss;
+                }
 
-            if ($this->date->addHour(2) >= $this->afternoon_end) {
-                $morning_loss = $this->settings->absent_loss;
-                $afternoon_loss = $this->settings->absent_loss;
-                $morning_absent = true;
-                $afternoon_absent = true;
+                // Afternoon
+                if($this->date->addHour(2) > $this->afternoon_start) {
+                    $afternoon_loss += $this->date->diffInMinutes($this->afternoon_start) * $this->settings->losing_pang;
+                    $afternoon_loss = ($afternoon_loss >= $this->settings->absent_loss) ? $this->settings->absent_loss : $afternoon_loss;
+                }
+
+                if ($this->date->addHour(2) >= $this->afternoon_end) {
+                    $morning_loss = $this->settings->absent_loss;
+                    $afternoon_loss = $this->settings->absent_loss;
+                    $morning_absent = true;
+                    $afternoon_absent = true;
+                }
+
+                if($day->excused) {
+                    $morning_loss = 0;
+                    $afternoon_loss = 0;
+                }
+
+                $tManual = $this->editPangModel->getEditPangByDay($id, $this->date->toDateString());
+                $editQuantity = 0;
+                foreach ($tManual as $manual){
+                    $editQuantity += $manual->quantity;
+                }
+
+                $difference = $morning_gain - $morning_loss + $afternoon_gain - $afternoon_loss + $editQuantity;
+
+
+
+                $sql = "UPDATE days SET difference = :diff WHERE student_id = :id AND id = :i";
+                $query = $this->db->prepare($sql);
+                $parameters = array(':diff' => $difference, ':id' => $id, ":i" => $day->id);
+                $query->execute($parameters);
             }
-
-            if($day->excused) {
-                $morning_loss = 0;
-                $afternoon_loss = 0;
-            }
-
-            $tManual = $this->editPangModel->getEditPangByDay($id, $this->date->toDateString());
-            $editQuantity = 0;
-            foreach ($tManual as $manual){
-                $editQuantity += $manual->quantity;
-            }
-
-            $difference = $morning_gain - $morning_loss + $afternoon_gain - $afternoon_loss + $editQuantity;
-
-
-
-            $sql = "UPDATE days SET difference = :diff WHERE student_id = :id AND id = :i";
-            $query = $this->db->prepare($sql);
-            $parameters = array(':diff' => $difference, ':id' => $id, ":i" => $day->id);
-            $query->execute($parameters);
         }
     }
 

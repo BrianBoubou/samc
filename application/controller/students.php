@@ -355,9 +355,9 @@ class Students extends Controller
         if (!isset($user))
             header('location: ' . URL);
 
-        if ($auth['isAdmin'] !== '1')
+        if ($user['isAdmin'] !== '1')
         {
-            $name = explode(" ", $auth['name']);
+            $name = explode(" ", $user['name']);
             $firstname = $name[0];
             $lastname = $name[1];
             header('location: ' . URL . 'students/view/' . $firstname . '.' . $lastname);
@@ -428,9 +428,9 @@ class Students extends Controller
         if (!isset($user))
             header('location: ' . URL);
 
-        if ($auth['isAdmin'] !== '1')
+        if ($user['isAdmin'] !== '1')
         {
-            $name = explode(" ", $auth['name']);
+            $name = explode(" ", $user['name']);
             $firstname = $name[0];
             $lastname = $name[1];
             header('location: ' . URL . 'students/view/' . $firstname . '.' . $lastname);
