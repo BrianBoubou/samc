@@ -58,7 +58,7 @@ class Home extends Controller
         $CLIENT_ID     = '604dee1f-f1a6-463d-b6e2-dbbac42428a4';
         $CLIENT_SECRET = 'gatCRAPK4008}dlswXE1~;)';
 
-        $REDIRECT_URI           = 'http://localhost/samc/home/live';
+        $REDIRECT_URI           = 'https://samsung.absences.wac.epitech.eu/home/live';
         $AUTHORIZATION_ENDPOINT = 'https://login.microsoftonline.com/common/oauth2/v2.0/authorize';
         $TOKEN_ENDPOINT         = 'https://login.microsoftonline.com/common/oauth2/v2.0/token';
 
