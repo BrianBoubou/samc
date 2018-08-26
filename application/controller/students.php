@@ -98,6 +98,8 @@ class Students extends Controller
             $student->pangs = $pangs;
             $student->pangsHistory = $pangsHistory;
             $student->attendanceHistory = $attendanceHistory;
+            if (!isset($student->total))
+                $student->total = 1000;
 
             // load views
             require APP . 'view/_templates/header.php';
