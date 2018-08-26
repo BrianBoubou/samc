@@ -82,6 +82,7 @@ class Home extends Controller
             {
                 $student = $this->studentModel->getByMail($mail);
                 if (!isset($student)) {
+                    $_SESSION['errors-login-live'] = true;
                     header("location: " . URL);
                     die();
                 }

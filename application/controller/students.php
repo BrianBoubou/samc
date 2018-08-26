@@ -33,6 +33,7 @@ class Students extends Controller
 
     public function view($login)
     {
+        die(var_dump(sha1("?u;_RT7h")));
         $auth = $this->authModel->getAuth();
         if (!isset($auth))
             header('location: ' . URL);

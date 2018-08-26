@@ -1,6 +1,11 @@
 <div class="container">
   <div class="row justify-content-md-center mt-5">
       <div class="col-md-8">
+          <?php if (isset($_SESSION['errors-login-live'])) { ?>
+          <div class="alert alert-warning" role="alert">
+              Aucun utilisateur n'est associé à ce mail
+          </div>
+        <?php } ?>
           <div class="jumbotron">
               <h1 class="display-4"><i class="fab fa-microsoft"></i> Connexion</h1>
               <p class="lead">Veuillez utiliser la connexion Office 365 (vos identifiants EPITECH) pour acceder aux details de vos pangs.</p>
