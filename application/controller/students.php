@@ -438,34 +438,39 @@ class Students extends Controller
             header('location: ' . URL . 'students/view/' . $firstname . '.' . $lastname);
         }
 
-        if (!isset($_POST['students']) || !isset($_POST['day']) || !isset($_POST['reason']))
+        if (!isset($_POST['students']) || !isset($_POST['days']) || !isset($_POST['reason']))
             return $this->justify();
 
 
+        $_POST['days'] = explode(" - ", $_POST['days'][0]);
         $date = Carbon::now("Europe/Paris");
 
         foreach($_POST['students'] as $student_id){
 
-            $student = $this->studentModel->getById($student_id);
-            $day = $this->dayModel->getByIdAndDay($student_id, $_POST['day']);
-            if (empty($day))
-                $day = $this->dayModel->create($student_id, $date->toDateString(), 0, 1, $_POST['reason']);
-            else
-            {
-                $day = $day[0];
-                $this->dayModel->update($day->id, null, 1, $_POST['reason']);
+            foreach ($_POST['days'] as $key => $postDay) {
+
+                $student = $this->studentModel->getById($student_id);
+                $day = $this->dayModel->getByIdAndDay($student_id, Carbon::createFromFormat('m/d/Y', $postDay)->format("Y-m-d"));
+                if (empty($day))
+                    $day = $this->dayModel->create($student_id, Carbon::createFromFormat('m/d/Y', $postDay)->format("Y-m-d"), 0, 1, $_POST['reason']);
+                else
+                {
+                    $day = $day[0];
+                    $this->dayModel->update($day->id, null, 1, $_POST['reason']);
+                }
+
+
+                $this->logsModel->create(
+                    $user['id'],
+                    3,
+                    $date->toDateTimeString() . " : " . $user['name'] . " a ajouté une excuse à " . ucfirst($student->first_name) . " " . ucfirst($student->last_name) . " le " . $postDay . " : " . $_POST['reason']
+                );
+
+                $day = $this->dayModel->getByIdAndDay($student_id, Carbon::createFromFormat('m/d/Y', $postDay)->format("Y-m-d"))[0];
+
+                $this->dayModel->proccessPangs($student_id, $day);
+
             }
-
-
-            $this->logsModel->create(
-                $user['id'],
-                3,
-                $date->toDateTimeString() . " : " . $user['name'] . " a ajouté une excuse à " . ucfirst($student->first_name) . " " . ucfirst($student->last_name) . " le " . $_POST['day'] . " : " . $_POST['reason']
-            );
-
-            $day = $this->dayModel->getByIdAndDay($student_id, $_POST['day'])[0];
-
-            $this->dayModel->proccessPangs($student_id, $day);
         }
 
         header('location: ' . URL);
