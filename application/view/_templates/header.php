@@ -35,6 +35,14 @@
             color: white !important;
             cursor: pointer !important;
         }
+        .dropdown-item {
+            transition: 200ms !important;
+        }
+        .dropdown-item:hover{
+            color: whitesmoke !important;
+            background: #373a3c !important;
+            opacity: 0.8;
+        }
     </style>
 </head>
 <body style="background: whitesmoke !important;">
@@ -58,13 +66,13 @@
                       </a>
                       <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink">
                           <a href="<?php echo URL; ?>students" class="dropdown-item">
-                                  <i class="fas fa-list"></i> Voir tous les etudiants
+                                  <i class="fas fa-list"></i> <span style="margin-left: 8px;">Voir tous les etudiants</span>
                           </a>
                           <a href="<?php echo URL; ?>students/add" class="dropdown-item">
-                              <i class="fas fa-plus"></i> Ajouter un etudiant
+                              <i class="fas fa-plus"></i> <span style="margin-left: 10px;">Ajouter un etudiant</span>
                           </a>
                           <a href="<?php echo URL; ?>students/addBulk" class="dropdown-item">
-                              <i class="fas fa-user-plus"></i> Ajouter plusieurs etudiants
+                              <i class="fas fa-user-plus"></i> <span style="margin-left: 5px;">Ajouter plusieurs etudiants</span>
                           </a>
                       </div>
                   </li>
@@ -80,14 +88,15 @@
                              aria-haspopup="true" aria-expanded="false">
                               <?php echo $auth['name']; ?>
                           </a>
-                          <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink">
+                          <div class="dropdown-menu dropdown-menu-right text-center" aria-labelledby="navbarDropdownMenuLink">
+                              <?php if(isset($auth) && $auth['check'] && $auth['isAdmin']) { ?>
+                                  <a href="<?php echo URL; ?>home/editPassword" class="dropdown-item">
+                                      <i class="fas fa-key"></i> <span style="margin-left: 5px;">Changer de mot de passe</span>
+                                  </a>
+                              <?php } ?>
                               <a href="<?php echo URL; ?>home/logout" class="dropdown-item">
-                                  Deconnexion
+                                  <i class="fas fa-sign-out-alt"></i> <span style="margin-left: 5px;">Deconnexion</span>
                               </a>
-
-                              <form id="logout-form" action="<?php echo URL; ?>logout" method="POST"
-                                    style="display: none;">
-                              </form>
                           </div>
                       </li>
                   <?php } ?>

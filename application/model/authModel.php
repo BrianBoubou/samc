@@ -40,6 +40,21 @@ class AuthModel
         $query->execute($parameters);
 
         $_SESSION['auth'] = ['name' => $user->name, 'isAdmin' => $user->admin, 'token' => $token, 'email' => $user->email, "id" => $user->id];
+        if (!isset($user->password) || $user->password == "")
+            $_SESSION['auth']['HavePassword'] = 0;
+        else
+        {
+            $_SESSION['auth']['HavePassword'] = 1;
+            $_SESSION['auth']['passwordHash'] = $user->password;
+        }
+    }
+
+    public function updatePassword($id, $password)
+    {
+        $sql = "UPDATE users SET password = :pwd WHERE id = :id";
+        $query = $this->db->prepare($sql);
+        $parameters = array(':pwd' => sha1($password), ':id' => $user->id);
+        $query->execute($parameters);
     }
 
     public function createAuthForStudent($student)

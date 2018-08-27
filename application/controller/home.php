@@ -38,6 +38,66 @@ class Home extends Controller
         require APP . 'view/_templates/footer.php';
     }
 
+    public function editPassword()
+    {
+        $auth = $this->authModel->getAuth();
+        if (!isset($auth))
+            header('location: ' . URL);
+
+        if ($auth['isAdmin'] !== '1')
+        {
+            $name = explode(" ", $auth['name']);
+            $firstname = $name[0];
+            $lastname = $name[1];
+            header('location: ' . URL . 'students/view/' . $firstname . '.' . $lastname);
+        }
+
+        // load views
+        require APP . 'view/_templates/header.php';
+        require APP . 'view/home/editPassword.php';
+        require APP . 'view/_templates/footer.php';
+    }
+
+    public function updatePassword()
+    {
+        $auth = $this->authModel->getAuth();
+        if (!isset($auth))
+            header('location: ' . URL);
+
+        if ($auth['isAdmin'] !== '1')
+        {
+            $name = explode(" ", $auth['name']);
+            $firstname = $name[0];
+            $lastname = $name[1];
+            header('location: ' . URL . 'students/view/' . $firstname . '.' . $lastname);
+        }
+
+
+        if (isset($_POST['oldPassword']) && $_POST['oldPassword'] !== "" && $_POST['newPassword'] !== "" && $_POST['newPasswordConfirm'] !== "" && $_POST['newPassword'] === $_POST['newPasswordConfirm'] && $auth['HavePassword'])
+        {
+            if (sha1($_POST['oldPassword']) === $auth['passwordHash'])
+            {
+                $this->authModel->updatePassword($auth['id'], $_POST['newPassword']);
+                $_SESSION['auth']['passwordHash'] = sha1($_POST['newPassword']);
+                header('location: ' . URL . 'students?confirm-edit-password=1');
+            }
+            else {
+                header('location: ' . URL . 'home/editPassword?errors=1');
+            }
+        }
+        else if ($_POST['newPassword'] !== "" && $_POST['newPasswordConfirm'] !== "" && $_POST['newPassword'] === $_POST['newPasswordConfirm'] && !$auth['HavePassword'])
+        {
+            $this->authModel->updatePassword($auth['id'], $_POST['newPassword']);
+            $_SESSION['auth']['passwordHash'] = sha1($_POST['newPassword']);
+            $_SESSION['auth']['HavePassword'] = 1;
+            header('location: ' . URL . 'students?confirm-edit-password=1');
+        }
+        else
+        {
+            header('location: ' . URL . 'home/editPassword?errors=1');
+        }
+    }
+
     public function login()
     {
         if (isset($_POST['email']) && isset($_POST['password'])) {
