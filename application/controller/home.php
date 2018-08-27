@@ -52,6 +52,7 @@ class Home extends Controller
             }
 
         }
+        header('location: ' . URL);
     }
 
     public function live()

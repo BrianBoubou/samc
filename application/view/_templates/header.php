@@ -7,6 +7,8 @@
 
   <title>Samsung Campus</title>
 
+  <link rel="icon" href="<?php echo URL ?>img/icon.png">
+
   <!-- Styles -->
   <link href="<?php echo URL; ?>css/bootstrap.min.css" rel="stylesheet">
   <link href="<?php echo URL; ?>css/chosen.min.css" rel="stylesheet">
