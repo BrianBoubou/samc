@@ -113,16 +113,16 @@ class DayModel
     public function update($id, $diff = null, $justify = 0, $reason = null)
     {
         if($justify)
-        {
-            $sql = "UPDATE days SET excused = :excused, reason = :reason WHERE id = :id";
-            $query = $this->db->prepare($sql);
-            $parameters = array(':excused' => 1, ':reason' => $reason, ":id" => $id);
-            $query->execute($parameters);
-        }
+            {
+                $sql = "UPDATE days SET excused = :excused, reason = :reason WHERE id = :id";
+                $query = $this->db->prepare($sql);
+                $parameters = array(':excused' => 1, ':reason' => $reason, ":id" => $id);
+                $query->execute($parameters);
+            }
         else if(isset($diff))
-        {
+            {
 
-        }
+            }
     }
 
     public function updateCheckIn($dayString, $id, $arrived)
@@ -136,7 +136,7 @@ class DayModel
             else
                 $day = $day[0];
 
-                // die(var_dump($day, $arrived, $id));
+            // die(var_dump($day, $arrived, $id));
             $sql = "UPDATE days SET arrived_at = :arrived WHERE student_id = :student_id AND id = :id";
             $query = $this->db->prepare($sql);
             $parameters = array(':arrived' => $arrived, ':student_id' => $id, ":id" => $day->id);
