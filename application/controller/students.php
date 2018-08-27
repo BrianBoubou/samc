@@ -269,8 +269,8 @@ class Students extends Controller
 
     public function updateChecks()
     {
-        $user = $this->authModel->getAuth();
-        if (!isset($user))
+        $auth = $this->authModel->getAuth();
+        if (!isset($auth))
             header('location: ' . URL);
 
         if ($auth['isAdmin'] !== '1')
@@ -305,9 +305,9 @@ class Students extends Controller
                 );
 
                 $this->logsModel->create(
-                    $user['id'],
+                    $auth['id'],
                     2,
-                    $date->toDateTimeString() . " : " . $user['name'] . " a modifié l'heure de pointage de " . ucfirst($student->first_name)  . " " .ucfirst($student->last_name) . " de $day->arrived_at à " . $_POST["arrived_at"] . ":00 le " . $_POST['day']
+                    $date->toDateTimeString() . " : " . $auth['name'] . " a modifié l'heure de pointage de " . ucfirst($student->first_name)  . " " .ucfirst($student->last_name) . " de $day->arrived_at à " . $_POST["arrived_at"] . ":00 le " . $_POST['day']
                 );
             }
 
@@ -319,9 +319,9 @@ class Students extends Controller
                 );
 
                 $this->logsModel->create(
-                    $user['id'],
+                    $auth['id'],
                     2,
-                    $date->toDateTimeString() . " : " . $user['name'] . " a modifié l'heure de pointage de " . ucfirst($student->first_name)  . " " .ucfirst($student->last_name) . " de $day->arrived_at à " . $_POST["leaved_at"] . ":00 le " . $_POST['day']
+                    $date->toDateTimeString() . " : " . $auth['name'] . " a modifié l'heure de pointage de " . ucfirst($student->first_name)  . " " .ucfirst($student->last_name) . " de $day->arrived_at à " . $_POST["leaved_at"] . ":00 le " . $_POST['day']
                 );
             }
         }
@@ -353,13 +353,13 @@ class Students extends Controller
 
     public function updatePangs()
     {
-        $user = $this->authModel->getAuth();
-        if (!isset($user))
+        $auth = $this->authModel->getAuth();
+        if (!isset($auth))
             header('location: ' . URL);
 
-        if ($user['isAdmin'] !== '1')
+        if ($auth['isAdmin'] !== '1')
         {
-            $name = explode(" ", $user['name']);
+            $name = explode(" ", $auth['name']);
             $firstname = $name[0];
             $lastname = $name[1];
             header('location: ' . URL . 'students/view/' . $firstname . '.' . $lastname);
@@ -384,9 +384,9 @@ class Students extends Controller
             );
 
             $this->logsModel->create(
-                $user['id'],
+                $auth['id'],
                 5,
-                $date->toDateTimeString() . " : " . $user['name'] . " a $sign " . abs($_POST['quantity']) . " pangs à " . ucfirst($student->first_name)  . " " .ucfirst($student->last_name) . " : " . $_POST['reason']
+                $date->toDateTimeString() . " : " . $auth['name'] . " a $sign " . abs($_POST['quantity']) . " pangs à " . ucfirst($student->first_name)  . " " .ucfirst($student->last_name) . " : " . $_POST['reason']
             );
 
             $day = $this->dayModel->getByIdAndDay($student_id, $_POST['day']);
@@ -426,13 +426,13 @@ class Students extends Controller
 
     public function storeJustify()
     {
-        $user = $this->authModel->getAuth();
-        if (!isset($user))
+        $auth = $this->authModel->getAuth();
+        if (!isset($auth))
             header('location: ' . URL);
 
-        if ($user['isAdmin'] !== '1')
+        if ($auth['isAdmin'] !== '1')
         {
-            $name = explode(" ", $user['name']);
+            $name = explode(" ", $auth['name']);
             $firstname = $name[0];
             $lastname = $name[1];
             header('location: ' . URL . 'students/view/' . $firstname . '.' . $lastname);
@@ -461,9 +461,9 @@ class Students extends Controller
 
 
                 $this->logsModel->create(
-                    $user['id'],
+                    $auth['id'],
                     3,
-                    $date->toDateTimeString() . " : " . $user['name'] . " a ajouté une excuse à " . ucfirst($student->first_name) . " " . ucfirst($student->last_name) . " le " . $postDay . " : " . $_POST['reason']
+                    $date->toDateTimeString() . " : " . $auth['name'] . " a ajouté une excuse à " . ucfirst($student->first_name) . " " . ucfirst($student->last_name) . " le " . $postDay . " : " . $_POST['reason']
                 );
 
                 $day = $this->dayModel->getByIdAndDay($student_id, Carbon::createFromFormat('m/d/Y', $postDay)->format("Y-m-d"))[0];
@@ -478,13 +478,13 @@ class Students extends Controller
 
     public function deleteJustify($id)
     {
-        $user = $this->authModel->getAuth();
-        if (!isset($user))
+        $auth = $this->authModel->getAuth();
+        if (!isset($auth))
             header('location: ' . URL);
 
-        if ($user['isAdmin'] !== '1')
+        if ($auth['isAdmin'] !== '1')
         {
-            $name = explode(" ", $user['name']);
+            $name = explode(" ", $auth['name']);
             $firstname = $name[0];
             $lastname = $name[1];
             header('location: ' . URL . 'students/view/' . $firstname . '.' . $lastname);
@@ -495,9 +495,9 @@ class Students extends Controller
         $date = Carbon::now("Europe/Paris");
 
         $this->logsModel->create(
-            $user['id'],
+            $auth['id'],
             4,
-            $date->toDateTimeString() . " : " . $user['name'] . " a supprimé l'excuse \"" . $day->reason . "\" à " . ucfirst($student->first_name) . " " . ucfirst($student->last_name) . " du " . $day->day . "."
+            $date->toDateTimeString() . " : " . $auth['name'] . " a supprimé l'excuse \"" . $day->reason . "\" à " . ucfirst($student->first_name) . " " . ucfirst($student->last_name) . " du " . $day->day . "."
         );
 
         $this->dayModel->deleteJustify($id);
@@ -505,13 +505,13 @@ class Students extends Controller
 
     public function deletePangs($edit_pang_id)
     {
-        $user = $this->authModel->getAuth();
-        if (!isset($user))
+        $auth = $this->authModel->getAuth();
+        if (!isset($auth))
             header('location: ' . URL);
 
-        if ($user['isAdmin'] !== '1')
+        if ($auth['isAdmin'] !== '1')
         {
-            $name = explode(" ", $user['name']);
+            $name = explode(" ", $auth['name']);
             $firstname = $name[0];
             $lastname = $name[1];
             header('location: ' . URL . 'students/view/' . $firstname . '.' . $lastname);
@@ -523,9 +523,9 @@ class Students extends Controller
         $date = Carbon::now("Europe/Paris");
 
         $this->logsModel->create(
-            $user['id'],
+            $auth['id'],
             6,
-            $date->toDateTimeString() . " : " . $user['name'] . " a supprimé $sign de " . abs($edit->quantity) . " pangs à " . ucfirst($student->first_name)  . " " .ucfirst($student->last_name) . "."
+            $date->toDateTimeString() . " : " . $auth['name'] . " a supprimé $sign de " . abs($edit->quantity) . " pangs à " . ucfirst($student->first_name)  . " " .ucfirst($student->last_name) . "."
         );
 
         $this->editPangModel->delete($edit_pang_id);
@@ -533,13 +533,13 @@ class Students extends Controller
 
     public function add()
     {
-        $user = $this->authModel->getAuth();
-        if (!isset($user))
+        $auth = $this->authModel->getAuth();
+        if (!isset($auth))
             header('location: ' . URL);
 
-        if ($user['isAdmin'] !== '1')
+        if ($auth['isAdmin'] !== '1')
         {
-            $name = explode(" ", $user['name']);
+            $name = explode(" ", $auth['name']);
             $firstname = $name[0];
             $lastname = $name[1];
             header('location: ' . URL . 'students/view/' . $firstname . '.' . $lastname);
@@ -553,13 +553,13 @@ class Students extends Controller
 
     public function addPost()
     {
-        $user = $this->authModel->getAuth();
-        if (!isset($user))
+        $auth = $this->authModel->getAuth();
+        if (!isset($auth))
             header('location: ' . URL);
 
-        if ($user['isAdmin'] !== '1')
+        if ($auth['isAdmin'] !== '1')
         {
-            $name = explode(" ", $user['name']);
+            $name = explode(" ", $auth['name']);
             $firstname = $name[0];
             $lastname = $name[1];
             header('location: ' . URL . 'students/view/' . $firstname . '.' . $lastname);
@@ -575,13 +575,13 @@ class Students extends Controller
 
     public function addBulk()
     {
-        $user = $this->authModel->getAuth();
-        if (!isset($user))
+        $auth = $this->authModel->getAuth();
+        if (!isset($auth))
             header('location: ' . URL);
 
-        if ($user['isAdmin'] !== '1')
+        if ($auth['isAdmin'] !== '1')
         {
-            $name = explode(" ", $user['name']);
+            $name = explode(" ", $auth['name']);
             $firstname = $name[0];
             $lastname = $name[1];
             header('location: ' . URL . 'students/view/' . $firstname . '.' . $lastname);
@@ -595,13 +595,13 @@ class Students extends Controller
 
     public function storeBulk()
     {
-        $user = $this->authModel->getAuth();
-        if (!isset($user))
+        $auth = $this->authModel->getAuth();
+        if (!isset($auth))
             header('location: ' . URL);
 
-        if ($user['isAdmin'] !== '1')
+        if ($auth['isAdmin'] !== '1')
         {
-            $name = explode(" ", $user['name']);
+            $name = explode(" ", $auth['name']);
             $firstname = $name[0];
             $lastname = $name[1];
             header('location: ' . URL . 'students/view/' . $firstname . '.' . $lastname);
