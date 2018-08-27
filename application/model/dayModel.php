@@ -267,12 +267,12 @@ class DayModel
                 }
 
                 // Afternoon
-                if($this->date->addHour(2) > $this->afternoon_start) {
+                if($this->date > $this->afternoon_start) {
                     $afternoon_loss += $this->date->diffInMinutes($this->afternoon_start) * $this->settings->losing_pang;
                     $afternoon_loss = ($afternoon_loss >= $this->settings->absent_loss) ? $this->settings->absent_loss : $afternoon_loss;
                 }
 
-                if ($this->date->addHour(2) >= $this->afternoon_end) {
+                if ($this->date >= $this->afternoon_end) {
                     $morning_loss = $this->settings->absent_loss;
                     $afternoon_loss = $this->settings->absent_loss;
                     $morning_absent = true;

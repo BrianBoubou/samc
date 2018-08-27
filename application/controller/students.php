@@ -1,3 +1,4 @@
+
 <?php
 
 use Carbon\Carbon;
@@ -13,6 +14,7 @@ class Students extends Controller
         $auth = $this->authModel->getAuth();
         $students = $this->studentModel->getAll();
         $date = Carbon::now("Europe/Paris");
+        //var_dump($date);
 
         if (!isset($auth))
             header('location: ' . URL);
