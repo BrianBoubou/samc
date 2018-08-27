@@ -233,7 +233,7 @@ class DayModel
 
                 // Afternoon
                 if ($leave > $this->afternoon_extra) {
-                    if ($day->excused || !$afternoon_absent) {
+                    if ($day->excused || !$afternoon_absent && !$morning_absent) {
                         $leave = ($leave > $this->afternoon_end) ? $this->afternoon_end : $leave;
                         $afternoon_gain = $leave->diffInMinutes($this->afternoon_extra) * $this->settings->earning_pang;
                     }
