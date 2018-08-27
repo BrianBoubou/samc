@@ -93,11 +93,11 @@ class DayModel
         return $query->fetchAll();
     }
 
-    public function create($id, $day, $diff = 0, $justify = 0, $reason = null)
+    public function create($id, $day, $diff = 0, $justify = 0, $reason = "")
     {
-        $sql = "INSERT INTO days (student_id, day, difference) VALUES (:id, :day, :diff)";
+        $sql = "INSERT INTO days (student_id, day, difference, excused, reason) VALUES (:id, :day, :diff, :justify, :reason)";
         $query = $this->db->prepare($sql);
-        $parameters = array(':id' => $id, ':day' => $day, ':diff' => $diff);
+        $parameters = array(':id' => $id, ':day' => $day, ':diff' => $diff, ':justify' => $justify, ':reason' => $reason);
 
         $newId = $query->execute($parameters);
         $newId = $this->db->lastInsertId();
@@ -113,16 +113,16 @@ class DayModel
     public function update($id, $diff = null, $justify = 0, $reason = null)
     {
         if($justify)
-        {
-            $sql = "UPDATE days SET excused = :excused, reason = :reason WHERE id = :id";
-            $query = $this->db->prepare($sql);
-            $parameters = array(':excused' => 1, ':reason' => $reason, ":id" => $id);
-            $query->execute($parameters);
-        }
+            {
+                $sql = "UPDATE days SET excused = :excused, reason = :reason WHERE id = :id";
+                $query = $this->db->prepare($sql);
+                $parameters = array(':excused' => 1, ':reason' => $reason, ":id" => $id);
+                $query->execute($parameters);
+            }
         else if(isset($diff))
-        {
+            {
 
-        }
+            }
     }
 
     public function updateCheckIn($dayString, $id, $arrived)
@@ -136,7 +136,7 @@ class DayModel
             else
                 $day = $day[0];
 
-                // die(var_dump($day, $arrived, $id));
+            // die(var_dump($day, $arrived, $id));
             $sql = "UPDATE days SET arrived_at = :arrived WHERE student_id = :student_id AND id = :id";
             $query = $this->db->prepare($sql);
             $parameters = array(':arrived' => $arrived, ':student_id' => $id, ":id" => $day->id);
@@ -267,12 +267,12 @@ class DayModel
                 }
 
                 // Afternoon
-                if($this->date > $this->afternoon_start) {
+                if($this->date > $this->afternoon_start) { // $this->date->addHour(2) Uniquement en local !!
                     $afternoon_loss += $this->date->diffInMinutes($this->afternoon_start) * $this->settings->losing_pang;
                     $afternoon_loss = ($afternoon_loss >= $this->settings->absent_loss) ? $this->settings->absent_loss : $afternoon_loss;
                 }
 
-                if ($this->date >= $this->afternoon_end) {
+                if ($this->date >= $this->afternoon_end) { // $this->date->addHour(2) Uniquement en local !!
                     $morning_loss = $this->settings->absent_loss;
                     $afternoon_loss = $this->settings->absent_loss;
                     $morning_absent = true;

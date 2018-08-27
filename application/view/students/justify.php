@@ -20,8 +20,16 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="day">Jour</label>
-                            <input id="day" type="date" class="form-control" name="day" value="<?php echo  date('Y-m-d') ?>" required>
+                            <label for="day">Date(s)</label>
+                            <input id="day" type="text"
+                                   class="form-control datepicker-here"
+                                   data-language='en'
+                                   data-multiple-dates="true"
+                                   data-multiple-dates-separator=" - "
+                                   data-position='bottom left'
+                                   name="days[]"
+                                   autocomplete="off"
+                                   required>
                         </div>
 
                         <div class="form-group">
@@ -51,4 +59,26 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.bundle.min.js"></script>
 <script>
     $(".chosen").chosen();
+</script>
+<script src="<?php echo URL; ?>js/datepicker.min.js"></script>
+<script src="<?php echo URL; ?>js/i18n/datepicker.en.js"></script>
+<script>
+    // Make Sunday and Saturday disabled
+    var disabledDays = [0, 6];
+
+    var datepicker = $('#day').datepicker({
+        language: 'en',
+        onRenderCell: function (date, cellType) {
+            if (cellType == 'day') {
+                var day = date.getDay(),
+                    isDisabled = disabledDays.indexOf(day) != -1;
+
+                return {
+                    disabled: isDisabled
+                }
+            }
+        }
+    });
+    var date = new Date();
+    datepicker.data('datepicker').selectDate(date);
 </script>
