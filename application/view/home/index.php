@@ -82,4 +82,10 @@
 <script>
 if (document.getElementById('alert-live'))
     setTimeout(function(){ document.getElementById('alert-live').remove() }, 4500);
+if (document.getElementById('alert-disconnected'))
+{
+    $("#alert-disconnected").click(function(e) {
+        $(this).remove();
+    });
+}
 </script>

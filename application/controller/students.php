@@ -117,15 +117,18 @@ class Students extends Controller
     public function jsonStudentsData()
     {
         $auth = $this->authModel->getAuth();
-        if (!isset($auth))
-            header('location: ' . URL);
+        if (!isset($auth)) {
+            echo json_encode(["error" => "disconnected"]);
+            die();
+        }
 
         if ($auth['isAdmin'] !== '1')
         {
             $name = explode(" ", $auth['name']);
             $firstname = $name[0];
             $lastname = $name[1];
-            header('location: ' . URL . 'students/view/' . $firstname . '.' . $lastname);
+            echo json_encode(['error' => 'not admin']);
+            die();
         }
 
         $data = [];

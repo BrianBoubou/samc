@@ -59,7 +59,27 @@
           <div class="collapse navbar-collapse justify-content-end" id="navbarSupportedContent">
               <ul class="navbar-nav">
                   <?php if(isset($auth) && $auth['check'] && $auth['isAdmin']) { ?>
-                       <li class="nav-item dropdown">
+                      <li class="nav-item">
+                          <a class="nav-link" href="<?php echo URL; ?>logs"><i class="fas fa-history"></i> Logs</a>
+                      </li>
+                      <li class="nav-item dropdown">
+                          <a href="#" class="nav-link dropdown-toggle" id="navbarDropdownMenuLink" data-toggle="dropdown"
+                              aria-haspopup="true" aria-expanded="false">
+                              <i class="fas fa-users"></i> Etudiants
+                          </a>
+                          <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink">
+                              <a href="<?php echo URL; ?>students" class="dropdown-item">
+                                      <i class="fas fa-list"></i> <span style="margin-left: 8px;">Voir tous les etudiants</span>
+                              </a>
+                              <a href="<?php echo URL; ?>students/add" class="dropdown-item">
+                                  <i class="fas fa-plus"></i> <span style="margin-left: 10px;">Ajouter un etudiant</span>
+                              </a>
+                              <a href="<?php echo URL; ?>students/addBulk" class="dropdown-item">
+                                  <i class="fas fa-user-plus"></i> <span style="margin-left: 5px;">Ajouter plusieurs etudiants</span>
+                              </a>
+                          </div>
+                      </li>
+                      <li class="nav-item dropdown">
                           <a href="#" class="nav-link dropdown-toggle" id="navbarDropdownMenuLink" data-toggle="dropdown"
                               aria-haspopup="true" aria-expanded="false">
                               <i class="fas fa-toolbox"></i> Administrateurs
@@ -75,27 +95,7 @@
                                   <i class="fas fa-exclamation-triangle alert-danger"></i> <span style="margin-left: 5px;">Vider la base de données</span>
                               </a>
                           </div>
-                        </li>
-                  <li class="nav-item dropdown">
-                      <a href="#" class="nav-link dropdown-toggle" id="navbarDropdownMenuLink" data-toggle="dropdown"
-                          aria-haspopup="true" aria-expanded="false">
-                          <i class="fas fa-users"></i> Etudiants
-                      </a>
-                      <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink">
-                          <a href="<?php echo URL; ?>students" class="dropdown-item">
-                                  <i class="fas fa-list"></i> <span style="margin-left: 8px;">Voir tous les etudiants</span>
-                          </a>
-                          <a href="<?php echo URL; ?>students/add" class="dropdown-item">
-                              <i class="fas fa-plus"></i> <span style="margin-left: 10px;">Ajouter un etudiant</span>
-                          </a>
-                          <a href="<?php echo URL; ?>students/addBulk" class="dropdown-item">
-                              <i class="fas fa-user-plus"></i> <span style="margin-left: 5px;">Ajouter plusieurs etudiants</span>
-                          </a>
-                      </div>
-                  </li>
-                  <li class="nav-item">
-                      <a class="nav-link" href="<?php echo URL; ?>logs"><i class="fas fa-history"></i> Logs</a>
-                  </li>
+                      </li>
                   <?php } ?>
                   <?php if (!isset($auth)) { ?>
                       <li class="nav-item"><a href="<?php echo URL; ?>home/login" class="nav-link">Connexion</a></li>
@@ -150,5 +150,10 @@
   <?php if (isset($_GET['confirm-truncate'])) { ?>
       <div class="alert alert-success text-center" role="alert" id="alert-live">
           La base de donnée a bien été réinitialiser.
+      </div>
+  <?php } ?>
+  <?php if (isset($_GET['disconnected'])) { ?>
+      <div class="alert alert-warning text-center" role="alert" id="alert-disconnected">
+          Votre session à expirer, veuillez vous reconnecter.
       </div>
   <?php } ?>

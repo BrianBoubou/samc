@@ -90,8 +90,13 @@ var table = $('#ajaxStudents')
         side: 'left'
     });
 } )
+.on( 'error.dt', function ( e, settings, techNote, message ) {
+            window.location = "<?php echo URL ?>?disconnected=1";
+    } )
 .DataTable({
-    ajax: "<?php echo URL; ?>students/jsonStudentsData",
+    ajax: {
+            url: "<?php echo URL; ?>students/jsonStudentsData"
+    },
     select: {
     style:    'os',
     selector: 'td:not(:nth-last-child(-n+2))'
@@ -134,6 +139,8 @@ function ajaxRefresh()
     }
 }
 setInterval(ajaxRefresh, 5000);
+
+window.alert = function() {};
 
 </script>
 <script>
