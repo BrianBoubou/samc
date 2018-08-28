@@ -61,10 +61,10 @@
                     <tr>
                         <?php  isset($pangs[4]) ? $pangs[4] : ''; ?>
                         <td><?php echo $pang[0] ?></td>
-                        <td><?php echo $pang[1] ?></td>
-                        <td><?php echo $pang[3] ?></td>
+                        <td <?php  if(isset($pang[4])) { ?> id="pangdiff-<?php echo $pang[4] ?>" <?php } ?> ><?php echo $pang[1] ?></td>
+                        <td <?php  if(isset($pang[4])) { ?> id="pangreason-<?php echo $pang[4] ?>" <?php } ?>><?php echo $pang[3] ?></td>
                         <?php if($auth['isAdmin'] === '1' && isset($pang[4])) { ?>
-                            <td><a data-behavior='delete' href="<?php echo URL . 'students/deletePangs/' . $pang[4] ?>"><i class="fas fa-trash-alt"></i></td>
+                            <td><i data-reason="<?php echo $pang[3] ?>" data-diff="<?php echo $pang[1] ?>" data-id="<?php echo $pang[4] ?>" id="editPangDiff" class="fas fa-edit" style="cursor: pointer; margin-right: 8px;"></i><a data-behavior='delete' href="<?php echo URL . 'students/deletePangs/' . $pang[4] ?>"><i style="margin-left: 8px; margin-right: 8px;" class="fas fa-trash-alt"></i></td>
                         <?php } else { ?>
                             <td></td>
                         <?php } ?>
@@ -95,9 +95,9 @@
                     <?php if($day->excused) { ?>
                     <tr>
                         <td><?php echo $day->day ?></td>
-                        <td><?php echo $day->reason ?></td>
+                        <td id="reason-<?php echo $day->id ?>"><?php echo $day->reason ?></td>
                         <?php if($auth['isAdmin'] === '1') { ?>
-                        <td><a data-behavior='delete' href="<?php echo URL . 'students/deleteJustify/' . $day->id ?>"><i class="fas fa-trash-alt"></i></td>
+                        <td><i data-value="<?php echo $day->reason ?>" data-id="<?php echo $day->id ?>" id="editExcuse" class="fas fa-edit" style="cursor: pointer; margin-right: 8px;"></i><a data-behavior='delete' href="<?php echo URL . 'students/deleteJustify/' . $day->id ?>" style="margin-left: 8px; margin-right: 8px;"><i class="fas fa-trash-alt"></i></td>
                         <?php } else { ?>
                         <td></td>
                         <?php } ?>
@@ -262,5 +262,75 @@ $("[data-behavior='delete']").on('click', function (e) {
                 })
             }
         });
+});
+
+$("#editExcuse").click(function(e) {
+    var id = $(this).data("id");
+    if ($(this).hasClass("fa-edit"))
+    {
+        $(this).removeClass("fa-edit");
+        $(this).addClass("fa-check-square");
+        var value = $(this).data("value");
+        $("#reason-" + id).html("<input id=\"newValue" + id + "\" type=\"text\" value=\"" + value + "\" style=\"width:96%; padding:0 2%;\" />");
+    }
+    else {
+        var newValue = $("#newValue" + id).val();
+        var that = $(this);
+        $.ajax({
+            type: "GET",
+            url:  url + "students/ajaxUpdateExcuse?id=" + id + "&reason=" + newValue,
+            success: function (data) {
+                if (data == true)
+                {
+                    that.data("value", newValue);
+                    that.removeClass("fa-check-square");
+                    that.addClass("fa-edit");
+                    $("#newValue" + id).remove();
+                    $("#reason-" + id).text(newValue);
+                }
+                else {
+                    console.log("Ajax request error after calling : ajaxUpdateExcuse method into student controller");
+                }
+            }
+        });
+    }
+});
+
+$("#editPangDiff").click(function(e) {
+    var id = $(this).data("id");
+    var reason = $(this).data("reason");
+    var diff = $(this).data("diff");
+    if ($(this).hasClass("fa-edit"))
+    {
+        $(this).removeClass("fa-edit");
+        $(this).addClass("fa-check-square");
+        $("#pangreason-" + id).html("<input id=\"newReasonValue" + id + "\" type=\"text\" value=\"" + reason + "\" style=\"width:96%; padding:0 2%;\" />");
+        $("#pangdiff-" + id).html("<input id=\"newDiffValue" + id + "\" type=\"text\" value=\"" + diff + "\" style=\"width:96%; padding:0 2%;\" />");
+    }
+    else {
+        var newReasonValue = $("#newReasonValue" + id).val();
+        var newDiffValue = $("#newDiffValue" + id).val();
+        var that = $(this);
+        $.ajax({
+            type: "GET",
+            url:  url + "students/ajaxUpdateEditPang?id=" + id + "&reason=" + newReasonValue + "&diff=" + newDiffValue,
+            success: function (data) {
+                if (data == true)
+                {
+                    that.data("reason", newReasonValue);
+                    that.data("diff", newDiffValue);
+                    that.removeClass("fa-check-square");
+                    that.addClass("fa-edit");
+                    $("#newReasonValue" + id).remove();
+                    $("#newDiffValue" + id).remove();
+                    $("#pangreason-" + id).text(newReasonValue);
+                    $("#pangdiff-" + id).text(newDiffValue);
+                }
+                else {
+                    console.log("Ajax request error after calling : ajaxUpdateEditPang method into student controller");
+                }
+            }
+        });
+    }
 });
 </script>

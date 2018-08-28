@@ -50,4 +50,12 @@ class EditPangModel
         $query->execute([":id" => $id]);
     }
 
+    public function updatePangsEdit($id, $reason, $diff)
+    {
+        $sql = "UPDATE edit_pangs SET reason = :reason, quantity = :diff WHERE id = :id";
+        $query = $this->db->prepare($sql);
+        $parameters = array(':reason' => $reason, ":diff" => $diff, ":id" => $id);
+        $query->execute($parameters);
+    }
+
 }

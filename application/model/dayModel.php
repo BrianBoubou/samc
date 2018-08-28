@@ -176,6 +176,14 @@ class DayModel
         $query->execute($parameters);
     }
 
+    public function updateReason($id, $reason)
+    {
+        $sql = "UPDATE days SET reason = :reason WHERE id = :id";
+        $query = $this->db->prepare($sql);
+        $parameters = array(':reason' => $reason, ":id" => $id);
+        $query->execute($parameters);
+    }
+
     public function proccessPangs($id, $day)
     {
         $arrive = ($day->arrived_at !== null) ? Carbon::createFromFormat("Y-m-d H:i:s", $this->date->toDateString() . " " . $day->arrived_at) : null;

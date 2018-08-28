@@ -619,4 +619,50 @@ class Students extends Controller
         }
         header('location: ' . URL . 'students');
     }
+
+    public function ajaxUpdateExcuse()
+    {
+        $auth = $this->authModel->getAuth();
+        if (!isset($auth))
+            header('location: ' . URL);
+
+        if ($auth['isAdmin'] !== '1')
+        {
+            $name = explode(" ", $auth['name']);
+            $firstname = $name[0];
+            $lastname = $name[1];
+            header('location: ' . URL . 'students/view/' . $firstname . '.' . $lastname);
+        }
+
+        if (isset($_GET['id']) && isset($_GET['reason']) && $_GET['reason'] !== "")
+        {
+            $this->dayModel->updateReason($_GET['id'], $_GET['reason']);
+            echo true;
+        }
+        else
+            echo false;
+    }
+
+    public function ajaxUpdateEditPang()
+    {
+        $auth = $this->authModel->getAuth();
+        if (!isset($auth))
+            header('location: ' . URL);
+
+        if ($auth['isAdmin'] !== '1')
+        {
+            $name = explode(" ", $auth['name']);
+            $firstname = $name[0];
+            $lastname = $name[1];
+            header('location: ' . URL . 'students/view/' . $firstname . '.' . $lastname);
+        }
+
+        if (isset($_GET['id']) && isset($_GET['reason']) && $_GET['reason'] !== "" && isset($_GET['diff']) && $_GET['diff'] !== "")
+        {
+            $this->editPangModel->updatePangsEdit($_GET['id'], $_GET['reason'], $_GET['diff']);
+            echo true;
+        }
+        else
+            echo false;
+    }
 }
