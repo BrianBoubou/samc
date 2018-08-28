@@ -59,6 +59,23 @@
           <div class="collapse navbar-collapse justify-content-end" id="navbarSupportedContent">
               <ul class="navbar-nav">
                   <?php if(isset($auth) && $auth['check'] && $auth['isAdmin']) { ?>
+                       <li class="nav-item dropdown">
+                          <a href="#" class="nav-link dropdown-toggle" id="navbarDropdownMenuLink" data-toggle="dropdown"
+                              aria-haspopup="true" aria-expanded="false">
+                              <i class="fas fa-toolbox"></i> Administrateurs
+                          </a>
+                          <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink">
+                              <a href="<?php echo URL; ?>admin" class="dropdown-item">
+                                      <i class="fas fa-list"></i> <span style="margin-left: 8px;">Voir tous les administrateurs</span>
+                              </a>
+                              <a href="<?php echo URL; ?>admin/add" class="dropdown-item">
+                                  <i class="fas fa-plus"></i> <span style="margin-left: 10px;">Ajouter un administrateur</span>
+                              </a>
+                              <a href="<?php echo URL; ?>admin/resetBdd" class="dropdown-item">
+                                  <i class="fas fa-exclamation-triangle alert-danger"></i> <span style="margin-left: 5px;">Vider la base de données</span>
+                              </a>
+                          </div>
+                        </li>
                   <li class="nav-item dropdown">
                       <a href="#" class="nav-link dropdown-toggle" id="navbarDropdownMenuLink" data-toggle="dropdown"
                           aria-haspopup="true" aria-expanded="false">
@@ -105,3 +122,33 @@
 
       </div>
   </nav>
+  <?php if (isset($_GET['confirm-create-admin'])) { ?>
+      <div class="alert alert-success text-center" role="alert" id="alert-live">
+          L'ajout d'administrateur à bien été éffectuer.
+      </div>
+  <?php } ?>
+  <?php if (isset($_GET['confirm-edit-password'])) { ?>
+      <div class="alert alert-success text-center" role="alert" id="alert-live">
+          La modification du mot de passe à bien été prise en compte.
+      </div>
+  <?php } ?>
+  <?php if (isset($_GET['confirm-store-justify'])) { ?>
+      <div class="alert alert-success text-center" role="alert" id="alert-live">
+          L'ajout d'excuse a bien été prise en compte.
+      </div>
+  <?php } ?>
+  <?php if (isset($_GET['confirm-edit-pangs'])) { ?>
+      <div class="alert alert-success text-center" role="alert" id="alert-live">
+          L'édition des pangs à bien été prise en compte.
+      </div>
+  <?php } ?>
+  <?php if (isset($_GET['confirm-add-students'])) { ?>
+      <div class="alert alert-success text-center" role="alert" id="alert-live">
+          L'ajout d'étudiants à bien été pris en compte.
+      </div>
+  <?php } ?>
+  <?php if (isset($_GET['confirm-truncate'])) { ?>
+      <div class="alert alert-success text-center" role="alert" id="alert-live">
+          La base de donnée a bien été réinitialiser.
+      </div>
+  <?php } ?>

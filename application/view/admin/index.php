@@ -1,45 +1,23 @@
-<?php
-
-$logCategory = [
-    "Check-in / out",
-    "Edit Check-in / out",
-    "Ajout d'excuse",
-    "Suppression d'excuse",
-    "Ajouter / Retirer des pangs",
-    "Suppression d'ajout / retrait de pangs",
-    "Modification d'excuse",
-    "Modification d'ajout/retrait de pangs"
-];
-
-?>
 <div class="container">
-    <h1 class="my-3">Logs</h1>
+    <h1 class="my-3">Administrateurs</h1>
     <div class="row">
         <div class="col-12">
             <div class="table-responsive mt-3">
                 <table class="table table-sm table-striped dataTable">
                     <thead>
                         <th>ID</th>
-                        <th>User</th>
-                        <th>Category</th>
-                        <th>Action</th>
+                        <th>Name</th>
+                        <th>Email</th>
                     </thead>
                     <tbody>
-                        <?php foreach($logs as $log) { ?>
+                        <?php foreach($users as $user) { ?>
                             <tr>
-                                <td><?php echo $log->id ?></td>
-                                <td><?php echo $log->user_id ?></td>
-                                <td><?php echo $logCategory[$log->category_id - 1] ?></td>
-                                <td><?php echo $log->action ?></td>
+                                <td><?php echo $user->id ?></td>
+                                <td><?php echo $user->name ?></td>
+                                <td><?php echo $user->email ?></td>
                             </tr>
                         <?php } ?>
                     </tbody>
-                    <tfoot>
-                        <th>ID</th>
-                        <th>User</th>
-                        <th>Category</th>
-                        <th>Action</th>
-                    </tfoot>
                 </table>
             </div>
         </div>
@@ -69,4 +47,8 @@ $('.dataTable').DataTable({
         }
     ]
 });
+</script>
+<script>
+if (document.getElementById('alert-live'))
+    setTimeout(function(){ document.getElementById('alert-live').remove() }, 3000);
 </script>

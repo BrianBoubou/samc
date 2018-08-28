@@ -401,7 +401,7 @@ class Students extends Controller
             $this->dayModel->proccessPangs($student_id, $day);
         }
 
-        header('location: ' . URL);
+        header('location: ' . URL . 'students?confirm-edit-pangs');
     }
 
     public function justify()
@@ -475,7 +475,7 @@ class Students extends Controller
             }
         }
 
-        header('location: ' . URL);
+        header('location: ' . URL . 'students?confirm-store-justify=1');
     }
 
     public function deleteJustify($id)
@@ -572,7 +572,7 @@ class Students extends Controller
 
 
         $this->studentModel->create($_POST['firstname'], $_POST['lastname']);
-        header('location: ' . URL . 'students');
+        header('location: ' . URL . 'students?confirm-add-students=1');
     }
 
     public function addBulk()
@@ -609,15 +609,49 @@ class Students extends Controller
             header('location: ' . URL . 'students/view/' . $firstname . '.' . $lastname);
         }
 
-        if (!isset($_POST['names']))
-            header('location: ' . URL . 'students/addBulk');
+        if (isset($_FILES['file']) && $_FILES['file']['error'] === 0) {
 
-        $names = explode("\n", $_POST['names']);
-        foreach ($names as $name) {
-            $parts = explode(" ", $name);
-            $this->studentModel->create($parts[0], $parts[1]);
+            // UPLOAD DU FICHIER CSV, vérification et insertion en BASE
+            if($_FILES["file"]["type"] != "application/vnd.ms-excel") {
+                header('location: ' . URL . 'students/addBulk?error-file-type=1');
+            }
+            elseif(is_uploaded_file($_FILES['file']['tmp_name'])) {
+
+            	//Process the CSV file
+            	$handle = fopen($_FILES['file']['tmp_name'], "r");
+            	$data = fgetcsv($handle, 1000, ";"); //Remove if CSV file does not have column headings
+                if ($data[0] == 'login' || $data[0] == 'Login' || $data[0] == 'email' || $data[0] == 'mail')
+                {
+                    while (($data = fgetcsv($handle, 1000, ";")) !== FALSE) {
+                        $mail = $data[0];
+                        if (isset($mail) && $mail != '')
+                            $this->studentModel->createByMail($mail);
+                    }
+                    header('location: ' . URL . 'students?confirm-add-students=1');
+                }
+                else
+                    header('location: ' . URL . 'students/addBulk?error-header-csv=1');
+
+            }
+            else
+                header('location: ' . URL . 'students/addBulk?error-upload-file=1');
+
         }
-        header('location: ' . URL . 'students');
+        else {
+
+            // die(var_dump($_POST['names']));
+            if (!isset($_POST['names']) || $_POST['names'] == ''){
+                header('location: ' . URL . 'students/addBulk?error-empty-input=1');
+                die();
+            }
+
+            $names = explode("\n", $_POST['names']);
+            foreach ($names as $name) {
+                $parts = explode(" ", $name);
+                $this->studentModel->create($parts[0], $parts[1]);
+            }
+            header('location: ' . URL . 'students?confirm-add-students=1');
+        }
     }
 
     public function ajaxUpdateExcuse()
@@ -637,6 +671,16 @@ class Students extends Controller
         if (isset($_GET['id']) && isset($_GET['reason']) && $_GET['reason'] !== "")
         {
             $this->dayModel->updateReason($_GET['id'], $_GET['reason']);
+            $date = Carbon::now("Europe/Paris");
+            $firstname = explode(".", $_GET['student'])[0];
+            $lastname = explode(".", $_GET['student'])[1];
+
+            $this->logsModel->create(
+                $auth['id'],
+                7,
+                $date->toDateTimeString() . " : " . $auth['name'] . " a modifié l'excuse \"" . $_GET['reason'] . "\" à " . ucfirst($firstname) . " " . ucfirst($lastname) . " du " . $_GET['day'] . "."
+            );
+
             echo true;
         }
         else
@@ -660,6 +704,15 @@ class Students extends Controller
         if (isset($_GET['id']) && isset($_GET['reason']) && $_GET['reason'] !== "" && isset($_GET['diff']) && $_GET['diff'] !== "")
         {
             $this->editPangModel->updatePangsEdit($_GET['id'], $_GET['reason'], $_GET['diff']);
+            $date = Carbon::now("Europe/Paris");
+            $sign = ($_GET['diff'] > 0) ? "l'ajout" : 'le retrait';
+            $firstname = explode(".", $_GET['student'])[0];
+            $lastname = explode(".", $_GET['student'])[1];
+            $this->logsModel->create(
+                $auth['id'],
+                8,
+                $date->toDateTimeString() . " : " . $auth['name'] . " a modifié $sign de " . abs($_GET['diff']) . " pangs à " . ucfirst($firstname)  . " " .ucfirst($lastname) . "."
+            );
             echo true;
         }
         else

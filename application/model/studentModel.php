@@ -75,6 +75,18 @@ class StudentModel
         $query->execute($parameters);
     }
 
+    public function createByMail($mail)
+    {
+        $firstname = explode(".", $mail)[0];
+        $lastname = explode("@", explode(".", $mail)[1])[0];
+
+        $sql = "INSERT INTO students (first_name, last_name, promo_id, email) VALUES (:firstname, :lastname, :promo, :email)";
+        $query = $this->db->prepare($sql);
+        $parameters = array(':firstname' => $firstname, ':lastname' => $lastname, ':promo' => 1, ":email" => $firstname . '.' . $lastname . '@epitech.eu');
+
+        $query->execute($parameters);
+    }
+
 
 
 }

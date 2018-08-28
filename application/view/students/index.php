@@ -1,9 +1,4 @@
 <div class="container">
-    <?php if (isset($_GET['confirm-edit-password'])) { ?>
-        <div class="alert alert-success" role="alert" id="alert-live">
-            La modification du mot de passe à bien été prise en compte.
-        </div>
-    <?php } ?>
     <h1 class="my-3">Liste des etudiants</h1>
     <div class="row">
         <div class="col-12">
@@ -143,5 +138,5 @@ setInterval(ajaxRefresh, 5000);
 </script>
 <script>
 if (document.getElementById('alert-live'))
-    setTimeout(function(){ document.getElementById('alert-live').remove() }, 4500);
+    setTimeout(function(){ document.getElementById('alert-live').remove() }, 3000);
 </script>

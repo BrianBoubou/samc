@@ -69,12 +69,35 @@ class AuthModel
         $this->setAuth($user, $token);
     }
 
+    public function createAdmin($email)
+    {
+        $sql = "INSERT INTO users (name, email, admin) VALUES (:name, :email, 1)";
+        $query = $this->db->prepare($sql);
+        $parameters = array(':name' => ucfirst(explode('.', $email)[0]) . ' ' . ucfirst(explode('@', explode('.', $email)[1])[0]), ':email' => $email);
+        $query->execute($parameters);
+    }
+
     public function getById($id)
     {
         $sql = "SELECT * FROM users WHERE id = :id";
         $query = $this->db->prepare($sql);
         $query->execute([":id" => $id]);
         return $query->fetchAll()[0];
+    }
+
+    public function getAdmins()
+    {
+        $sql = "SELECT * FROM users WHERE admin = :admin";
+        $query = $this->db->prepare($sql);
+        $query->execute([":admin" => 1]);
+        return $query->fetchAll();
+    }
+
+    public function truncateBdd()
+    {
+        $sql = "SET FOREIGN_KEY_CHECKS=0; DELETE FROM `logs` WHERE id != 0; DELETE FROM `days` WHERE id != 0; DELETE FROM `edit_pangs` WHERE id != 0; DELETE FROM `students` WHERE id != 0; DELETE FROM `users` WHERE admin != 1; SET FOREIGN_KEY_CHECKS=1;";
+        $query = $this->db->prepare($sql);
+        $query->execute();
     }
 
     public function getErrors()

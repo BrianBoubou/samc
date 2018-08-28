@@ -97,7 +97,7 @@
                         <td><?php echo $day->day ?></td>
                         <td id="reason-<?php echo $day->id ?>"><?php echo $day->reason ?></td>
                         <?php if($auth['isAdmin'] === '1') { ?>
-                        <td><i data-value="<?php echo $day->reason ?>" data-id="<?php echo $day->id ?>" id="editExcuse" class="fas fa-edit" style="cursor: pointer; margin-right: 8px;"></i><a data-behavior='delete' href="<?php echo URL . 'students/deleteJustify/' . $day->id ?>" style="margin-left: 8px; margin-right: 8px;"><i class="fas fa-trash-alt"></i></td>
+                        <td><i data-day="<?php echo $day->day; ?>" data-value="<?php echo $day->reason ?>" data-id="<?php echo $day->id ?>" id="editExcuse" class="fas fa-edit" style="cursor: pointer; margin-right: 8px;"></i><a data-behavior='delete' href="<?php echo URL . 'students/deleteJustify/' . $day->id ?>" style="margin-left: 8px; margin-right: 8px;"><i class="fas fa-trash-alt"></i></td>
                         <?php } else { ?>
                         <td></td>
                         <?php } ?>
@@ -266,6 +266,7 @@ $("[data-behavior='delete']").on('click', function (e) {
 
 $("#editExcuse").click(function(e) {
     var id = $(this).data("id");
+    var day = $(this).data("day");
     if ($(this).hasClass("fa-edit"))
     {
         $(this).removeClass("fa-edit");
@@ -278,7 +279,7 @@ $("#editExcuse").click(function(e) {
         var that = $(this);
         $.ajax({
             type: "GET",
-            url:  url + "students/ajaxUpdateExcuse?id=" + id + "&reason=" + newValue,
+            url:  url + "students/ajaxUpdateExcuse?id=" + id + "&reason=" + newValue + "&student=<?php echo $student->first_name . '.' . $student->last_name; ?>&day=" + day,
             success: function (data) {
                 if (data == true)
                 {
@@ -313,7 +314,7 @@ $("#editPangDiff").click(function(e) {
         var that = $(this);
         $.ajax({
             type: "GET",
-            url:  url + "students/ajaxUpdateEditPang?id=" + id + "&reason=" + newReasonValue + "&diff=" + newDiffValue,
+            url:  url + "students/ajaxUpdateEditPang?id=" + id + "&reason=" + newReasonValue + "&diff=" + newDiffValue + "&student=<?php echo $student->first_name . '.' . $student->last_name; ?>",
             success: function (data) {
                 if (data == true)
                 {

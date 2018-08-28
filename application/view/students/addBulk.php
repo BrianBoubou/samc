@@ -2,9 +2,29 @@
     <h1 class="mt-3 mb-3">Ajouter plusieurs etudiants</h1>
     <div class="row">
         <div class="col-md-8 offset-md-2">
+            <?php if (isset($_GET['error-file-type'])) { ?>
+                <div class="alert alert-warning text-center" role="alert" id="alert-live">
+                    Le fichier uploadé n'est pas un fichier CSV.
+                </div>
+            <?php } ?>
+            <?php if (isset($_GET['error-header-csv'])) { ?>
+                <div class="alert alert-warning text-center" role="alert" id="alert-live">
+                    L'entete du fichier csv doit ce nommer login ou Login.
+                </div>
+            <?php } ?>
+            <?php if (isset($_GET['error-upload-file'])) { ?>
+                <div class="alert alert-danger text-center" role="alert" id="alert-live">
+                    Erreur lors de l'upload du fichier vers le serveur, veuillez réessayer.
+                </div>
+            <?php } ?>
+            <?php if (isset($_GET['error-empty-input'])) { ?>
+                <div class="alert alert-danger text-center" role="alert" id="alert-live">
+                    Veuillez remplir l'input comme indiquez plus bas ou bien selectionner un fichier csv.
+                </div>
+            <?php } ?>
             <div class="card">
                 <div class="card-body">
-                    <form role="form" method="post" action="<?php echo URL . 'students/storeBulk' ?>">
+                    <form enctype="multipart/form-data" role="form" method="post" action="<?php echo URL . 'students/storeBulk' ?>">
 
                         <div class="form-group">
                             <div class="alert alert-primary" role="alert">
@@ -13,7 +33,17 @@
                         </div>
 
                         <div class="form-group">
-                            <textarea id="names" rows="5" type="text" class="form-control" name="names" required autofocus></textarea>
+                            <textarea id="names" rows="5" type="text" class="form-control" name="names" autofocus></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="alert alert-primary" role="alert">
+                                Ou importer depuis un fichier csv <code>( Entete : login, séparateur : ';' )</code>, le fichier doit contenir le mail de chacun des étudiants.
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <input name="file" type="file" />
                         </div>
 
                         <div class="form-group hidden" style="display: none;">
@@ -46,4 +76,8 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.bundle.min.js"></script>
 <script>
     $(".chosen").chosen();
+</script>
+<script>
+if (document.getElementById('alert-live'))
+    setTimeout(function(){ document.getElementById('alert-live').remove() }, 3000);
 </script>
