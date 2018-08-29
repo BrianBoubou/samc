@@ -130,6 +130,8 @@ class Home extends Controller
             $auth_url = $client->getAuthenticationUrl($AUTHORIZATION_ENDPOINT, $REDIRECT_URI);
             header('Location: ' . $auth_url);
             die('Redirect');
+
+            // Y6bt3nFSiNohk61tI6qGDvk6g9PXaepAEtYSyveaN/M= AzureAd secretkey
         }
         else
         {
@@ -140,11 +142,9 @@ class Home extends Controller
             $response = $client->fetch('https://graph.microsoft.com/v1.0/me');
             $mail = $response['result']['mail'];
             $user = $this->authModel->getByMail($mail);
-            //die(var_dump($mail));
             if (!isset($user))
             {
                 $student = $this->studentModel->getByMail($mail);
-                // die(var_dump($student));
                 if (!isset($student)) {
                     header("location: " . URL . '?errors-login-live=' . 1);
                     die();
@@ -152,7 +152,6 @@ class Home extends Controller
 
                 $this->authModel->createAuthForStudent($student);
                 $auth = $this->authModel->getAuth();
-                //die(var_dump($auth));
                 if ($auth['isAdmin'] === '1') {
                     header('location: ' . URL . 'students');
                     die();
@@ -169,7 +168,7 @@ class Home extends Controller
                 $this->authModel->setAuth($user, $token);
 
                 $auth = $this->authModel->getAuth();
-                
+
                 if ($auth['isAdmin'] == '1')
                 {
                         header('location: ' . URL . 'students');
