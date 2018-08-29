@@ -25,7 +25,6 @@ class Home extends Controller
      */
     public function index()
     {
-        $_SESSION['errors-login-live'] = true;
         $auth = $this->authModel->getAuth();
         $errors = $this->authModel->getErrors();
 
@@ -36,66 +35,6 @@ class Home extends Controller
         require APP . 'view/_templates/header.php';
         require APP . 'view/home/index.php';
         require APP . 'view/_templates/footer.php';
-    }
-
-    public function editPassword()
-    {
-        $auth = $this->authModel->getAuth();
-        if (!isset($auth))
-            header('location: ' . URL);
-
-        if ($auth['isAdmin'] !== '1')
-        {
-            $name = explode(" ", $auth['name']);
-            $firstname = $name[0];
-            $lastname = $name[1];
-            header('location: ' . URL . 'students/view/' . $firstname . '.' . $lastname);
-        }
-
-        // load views
-        require APP . 'view/_templates/header.php';
-        require APP . 'view/home/editPassword.php';
-        require APP . 'view/_templates/footer.php';
-    }
-
-    public function updatePassword()
-    {
-        $auth = $this->authModel->getAuth();
-        if (!isset($auth))
-            header('location: ' . URL);
-
-        if ($auth['isAdmin'] !== '1')
-        {
-            $name = explode(" ", $auth['name']);
-            $firstname = $name[0];
-            $lastname = $name[1];
-            header('location: ' . URL . 'students/view/' . $firstname . '.' . $lastname);
-        }
-
-
-        if (isset($_POST['oldPassword']) && $_POST['oldPassword'] !== "" && $_POST['newPassword'] !== "" && $_POST['newPasswordConfirm'] !== "" && $_POST['newPassword'] === $_POST['newPasswordConfirm'] && $auth['HavePassword'])
-        {
-            if (sha1($_POST['oldPassword']) === $auth['passwordHash'])
-            {
-                $this->authModel->updatePassword($auth['id'], $_POST['newPassword']);
-                $_SESSION['auth']['passwordHash'] = sha1($_POST['newPassword']);
-                header('location: ' . URL . 'students?confirm-edit-password=1');
-            }
-            else {
-                header('location: ' . URL . 'home/editPassword?errors=1');
-            }
-        }
-        else if ($_POST['newPassword'] !== "" && $_POST['newPasswordConfirm'] !== "" && $_POST['newPassword'] === $_POST['newPasswordConfirm'] && !$auth['HavePassword'])
-        {
-            $this->authModel->updatePassword($auth['id'], $_POST['newPassword']);
-            $_SESSION['auth']['passwordHash'] = sha1($_POST['newPassword']);
-            $_SESSION['auth']['HavePassword'] = 1;
-            header('location: ' . URL . 'students?confirm-edit-password=1');
-        }
-        else
-        {
-            header('location: ' . URL . 'home/editPassword?errors=1');
-        }
     }
 
     public function login()
@@ -112,7 +51,6 @@ class Home extends Controller
             }
 
         }
-        header('location: ' . URL);
     }
 
     public function live()
@@ -120,7 +58,7 @@ class Home extends Controller
         $CLIENT_ID     = '604dee1f-f1a6-463d-b6e2-dbbac42428a4';
         $CLIENT_SECRET = 'gatCRAPK4008}dlswXE1~;)';
 
-        $REDIRECT_URI           = 'https://samsung.absences.wac.epitech.eu/home/live';
+        $REDIRECT_URI           = 'http://localhost/samc/home/live';
         $AUTHORIZATION_ENDPOINT = 'https://login.microsoftonline.com/common/oauth2/v2.0/authorize';
         $TOKEN_ENDPOINT         = 'https://login.microsoftonline.com/common/oauth2/v2.0/token';
 
@@ -140,23 +78,18 @@ class Home extends Controller
             $response = $client->fetch('https://graph.microsoft.com/v1.0/me');
             $mail = $response['result']['mail'];
             $user = $this->authModel->getByMail($mail);
-            //die(var_dump($mail));
             if (!isset($user))
             {
                 $student = $this->studentModel->getByMail($mail);
-                // die(var_dump($student));
                 if (!isset($student)) {
-                    header("location: " . URL . '?errors-login-live=' . 1);
+                    header("location: " . URL);
                     die();
                 }
 
                 $this->authModel->createAuthForStudent($student);
                 $auth = $this->authModel->getAuth();
-                //die(var_dump($auth));
-                if ($auth['isAdmin'] === '1') {
+                if ($auth['isAdmin'] === '1')
                     header('location: ' . URL . 'students');
-                    die();
-                }
                 else {
                     $firstname = explode(" ", $auth['name'])[0];
                     $lastname = explode(" ", $auth['name'])[1];
@@ -169,15 +102,11 @@ class Home extends Controller
                 $this->authModel->setAuth($user, $token);
 
                 $auth = $this->authModel->getAuth();
-                
-                if ($auth['isAdmin'] == '1')
-                {
-                        header('location: ' . URL . 'students');
-                        die();
-                }
+                if ($auth['isAdmin'])
+                    header('location: ' . URL . 'students');
                 else {
-                    $firstname = strtolower(explode(" ", $auth['name'])[0]);
-                    $lastname = strtolower(explode(" ", $auth['name'])[1]);
+                    $firstname = explode(" ", $auth['name'])[0];
+                    $lastname = explode(" ", $auth['name'])[1];
                     header('location: ' . URL . 'students/view/' . $firstname . '.' . $lastname);
                 }
             }

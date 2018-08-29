@@ -1,4 +1,3 @@
-
 <?php
 
 use Carbon\Carbon;
@@ -14,7 +13,6 @@ class Students extends Controller
         $auth = $this->authModel->getAuth();
         $students = $this->studentModel->getAll();
         $date = Carbon::now("Europe/Paris");
-        //var_dump($date);
 
         if (!isset($auth))
             header('location: ' . URL);
@@ -36,21 +34,16 @@ class Students extends Controller
     public function view($login)
     {
         $auth = $this->authModel->getAuth();
-        
-        if (!isset($auth)) {
+        if (!isset($auth))
             header('location: ' . URL);
-            die();
-        }
 
         $name = explode(".", $login);
         $firstname = $name[0];
         $lastname = $name[1];
         $student = $this->studentModel->getByName($firstname, $lastname);
-        if(!$student) {
+        if(!$student)
             header('location: ' . URL);
-            die();
-        }
-        if ($auth['isAdmin'] === '1' || $auth['email'] === $firstname . '.' . $lastname . '@epitech.eu') {
+        if ($auth['isAdmin'] === '1' || $auth['email'] === $student->email) {
             $days = $this->dayModel->getById($student->id);
             $pangsHistory = [];
             $attendanceHistory = [[], []];
@@ -105,8 +98,6 @@ class Students extends Controller
             $student->pangs = $pangs;
             $student->pangsHistory = $pangsHistory;
             $student->attendanceHistory = $attendanceHistory;
-            if (!isset($student->total))
-                $student->total = 1000;
 
             // load views
             require APP . 'view/_templates/header.php';
@@ -122,18 +113,15 @@ class Students extends Controller
     public function jsonStudentsData()
     {
         $auth = $this->authModel->getAuth();
-        if (!isset($auth)) {
-            echo json_encode(["error" => "disconnected"]);
-            die();
-        }
+        if (!isset($auth))
+            header('location: ' . URL);
 
         if ($auth['isAdmin'] !== '1')
         {
             $name = explode(" ", $auth['name']);
             $firstname = $name[0];
             $lastname = $name[1];
-            echo json_encode(['error' => 'not admin']);
-            die();
+            header('location: ' . URL . 'students/view/' . $firstname . '.' . $lastname);
         }
 
         $data = [];
@@ -279,8 +267,8 @@ class Students extends Controller
 
     public function updateChecks()
     {
-        $auth = $this->authModel->getAuth();
-        if (!isset($auth))
+        $user = $this->authModel->getAuth();
+        if (!isset($user))
             header('location: ' . URL);
 
         if ($auth['isAdmin'] !== '1')
@@ -315,9 +303,9 @@ class Students extends Controller
                 );
 
                 $this->logsModel->create(
-                    $auth['id'],
+                    $user['id'],
                     2,
-                    $date->toDateTimeString() . " : " . $auth['name'] . " a modifié l'heure de pointage de " . ucfirst($student->first_name)  . " " .ucfirst($student->last_name) . " de $day->arrived_at à " . $_POST["arrived_at"] . ":00 le " . $_POST['day']
+                    $date->toDateTimeString() . " : " . $user['name'] . " a modifié l'heure de pointage de " . ucfirst($student->first_name)  . " " .ucfirst($student->last_name) . " de $day->arrived_at à " . $_POST["arrived_at"] . ":00 le " . $_POST['day']
                 );
             }
 
@@ -329,9 +317,9 @@ class Students extends Controller
                 );
 
                 $this->logsModel->create(
-                    $auth['id'],
+                    $user['id'],
                     2,
-                    $date->toDateTimeString() . " : " . $auth['name'] . " a modifié l'heure de pointage de " . ucfirst($student->first_name)  . " " .ucfirst($student->last_name) . " de $day->arrived_at à " . $_POST["leaved_at"] . ":00 le " . $_POST['day']
+                    $date->toDateTimeString() . " : " . $user['name'] . " a modifié l'heure de pointage de " . ucfirst($student->first_name)  . " " .ucfirst($student->last_name) . " de $day->arrived_at à " . $_POST["leaved_at"] . ":00 le " . $_POST['day']
                 );
             }
         }
@@ -363,8 +351,8 @@ class Students extends Controller
 
     public function updatePangs()
     {
-        $auth = $this->authModel->getAuth();
-        if (!isset($auth))
+        $user = $this->authModel->getAuth();
+        if (!isset($user))
             header('location: ' . URL);
 
         if ($auth['isAdmin'] !== '1')
@@ -394,9 +382,9 @@ class Students extends Controller
             );
 
             $this->logsModel->create(
-                $auth['id'],
+                $user['id'],
                 5,
-                $date->toDateTimeString() . " : " . $auth['name'] . " a $sign " . abs($_POST['quantity']) . " pangs à " . ucfirst($student->first_name)  . " " .ucfirst($student->last_name) . " : " . $_POST['reason']
+                $date->toDateTimeString() . " : " . $user['name'] . " a $sign " . abs($_POST['quantity']) . " pangs à " . ucfirst($student->first_name)  . " " .ucfirst($student->last_name) . " : " . $_POST['reason']
             );
 
             $day = $this->dayModel->getByIdAndDay($student_id, $_POST['day']);
@@ -409,7 +397,7 @@ class Students extends Controller
             $this->dayModel->proccessPangs($student_id, $day);
         }
 
-        header('location: ' . URL . 'students?confirm-edit-pangs');
+        header('location: ' . URL);
     }
 
     public function justify()
@@ -436,8 +424,8 @@ class Students extends Controller
 
     public function storeJustify()
     {
-        $auth = $this->authModel->getAuth();
-        if (!isset($auth))
+        $user = $this->authModel->getAuth();
+        if (!isset($user))
             header('location: ' . URL);
 
         if ($auth['isAdmin'] !== '1')
@@ -448,53 +436,48 @@ class Students extends Controller
             header('location: ' . URL . 'students/view/' . $firstname . '.' . $lastname);
         }
 
-        if (!isset($_POST['students']) || !isset($_POST['days']) || !isset($_POST['reason']))
+        if (!isset($_POST['students']) || !isset($_POST['day']) || !isset($_POST['reason']))
             return $this->justify();
 
 
-        $_POST['days'] = explode(" - ", $_POST['days'][0]);
         $date = Carbon::now("Europe/Paris");
 
         foreach($_POST['students'] as $student_id){
 
-            foreach ($_POST['days'] as $key => $postDay) {
-
-                $student = $this->studentModel->getById($student_id);
-                $day = $this->dayModel->getByIdAndDay($student_id, Carbon::createFromFormat('m/d/Y', $postDay)->format("Y-m-d"));
-                if (empty($day))
-                    $day = $this->dayModel->create($student_id, Carbon::createFromFormat('m/d/Y', $postDay)->format("Y-m-d"), 0, 1, $_POST['reason']);
-                else
-                {
-                    $day = $day[0];
-                    $this->dayModel->update($day->id, null, 1, $_POST['reason']);
-                }
-
-
-                $this->logsModel->create(
-                    $auth['id'],
-                    3,
-                    $date->toDateTimeString() . " : " . $auth['name'] . " a ajouté une excuse à " . ucfirst($student->first_name) . " " . ucfirst($student->last_name) . " le " . $postDay . " : " . $_POST['reason']
-                );
-
-                $day = $this->dayModel->getByIdAndDay($student_id, Carbon::createFromFormat('m/d/Y', $postDay)->format("Y-m-d"))[0];
-
-                $this->dayModel->proccessPangs($student_id, $day);
-
+            $student = $this->studentModel->getById($student_id);
+            $day = $this->dayModel->getByIdAndDay($student_id, $_POST['day']);
+            if (empty($day))
+                $day = $this->dayModel->create($student_id, $date->toDateString(), 0, 1, $_POST['reason']);
+            else
+            {
+                $day = $day[0];
+                $this->dayModel->update($day->id, null, 1, $_POST['reason']);
             }
+
+
+            $this->logsModel->create(
+                $user['id'],
+                3,
+                $date->toDateTimeString() . " : " . $user['name'] . " a ajouté une excuse à " . ucfirst($student->first_name) . " " . ucfirst($student->last_name) . " le " . $_POST['day'] . " : " . $_POST['reason']
+            );
+
+            $day = $this->dayModel->getByIdAndDay($student_id, $_POST['day'])[0];
+
+            $this->dayModel->proccessPangs($student_id, $day);
         }
 
-        header('location: ' . URL . 'students?confirm-store-justify=1');
+        header('location: ' . URL);
     }
 
     public function deleteJustify($id)
     {
-        $auth = $this->authModel->getAuth();
-        if (!isset($auth))
+        $user = $this->authModel->getAuth();
+        if (!isset($user))
             header('location: ' . URL);
 
-        if ($auth['isAdmin'] !== '1')
+        if ($user['isAdmin'] !== '1')
         {
-            $name = explode(" ", $auth['name']);
+            $name = explode(" ", $user['name']);
             $firstname = $name[0];
             $lastname = $name[1];
             header('location: ' . URL . 'students/view/' . $firstname . '.' . $lastname);
@@ -505,9 +488,9 @@ class Students extends Controller
         $date = Carbon::now("Europe/Paris");
 
         $this->logsModel->create(
-            $auth['id'],
+            $user['id'],
             4,
-            $date->toDateTimeString() . " : " . $auth['name'] . " a supprimé l'excuse \"" . $day->reason . "\" à " . ucfirst($student->first_name) . " " . ucfirst($student->last_name) . " du " . $day->day . "."
+            $date->toDateTimeString() . " : " . $user['name'] . " a supprimé l'excuse \"" . $day->reason . "\" à " . ucfirst($student->first_name) . " " . ucfirst($student->last_name) . " du " . $day->day . "."
         );
 
         $this->dayModel->deleteJustify($id);
@@ -515,13 +498,13 @@ class Students extends Controller
 
     public function deletePangs($edit_pang_id)
     {
-        $auth = $this->authModel->getAuth();
-        if (!isset($auth))
+        $user = $this->authModel->getAuth();
+        if (!isset($user))
             header('location: ' . URL);
 
-        if ($auth['isAdmin'] !== '1')
+        if ($user['isAdmin'] !== '1')
         {
-            $name = explode(" ", $auth['name']);
+            $name = explode(" ", $user['name']);
             $firstname = $name[0];
             $lastname = $name[1];
             header('location: ' . URL . 'students/view/' . $firstname . '.' . $lastname);
@@ -533,9 +516,9 @@ class Students extends Controller
         $date = Carbon::now("Europe/Paris");
 
         $this->logsModel->create(
-            $auth['id'],
+            $user['id'],
             6,
-            $date->toDateTimeString() . " : " . $auth['name'] . " a supprimé $sign de " . abs($edit->quantity) . " pangs à " . ucfirst($student->first_name)  . " " .ucfirst($student->last_name) . "."
+            $date->toDateTimeString() . " : " . $user['name'] . " a supprimé $sign de " . abs($edit->quantity) . " pangs à " . ucfirst($student->first_name)  . " " .ucfirst($student->last_name) . "."
         );
 
         $this->editPangModel->delete($edit_pang_id);
@@ -543,13 +526,13 @@ class Students extends Controller
 
     public function add()
     {
-        $auth = $this->authModel->getAuth();
-        if (!isset($auth))
+        $user = $this->authModel->getAuth();
+        if (!isset($user))
             header('location: ' . URL);
 
-        if ($auth['isAdmin'] !== '1')
+        if ($user['isAdmin'] !== '1')
         {
-            $name = explode(" ", $auth['name']);
+            $name = explode(" ", $user['name']);
             $firstname = $name[0];
             $lastname = $name[1];
             header('location: ' . URL . 'students/view/' . $firstname . '.' . $lastname);
@@ -563,13 +546,13 @@ class Students extends Controller
 
     public function addPost()
     {
-        $auth = $this->authModel->getAuth();
-        if (!isset($auth))
+        $user = $this->authModel->getAuth();
+        if (!isset($user))
             header('location: ' . URL);
 
-        if ($auth['isAdmin'] !== '1')
+        if ($user['isAdmin'] !== '1')
         {
-            $name = explode(" ", $auth['name']);
+            $name = explode(" ", $user['name']);
             $firstname = $name[0];
             $lastname = $name[1];
             header('location: ' . URL . 'students/view/' . $firstname . '.' . $lastname);
@@ -580,18 +563,18 @@ class Students extends Controller
 
 
         $this->studentModel->create($_POST['firstname'], $_POST['lastname']);
-        header('location: ' . URL . 'students?confirm-add-students=1');
+        header('location: ' . URL . 'students');
     }
 
     public function addBulk()
     {
-        $auth = $this->authModel->getAuth();
-        if (!isset($auth))
+        $user = $this->authModel->getAuth();
+        if (!isset($user))
             header('location: ' . URL);
 
-        if ($auth['isAdmin'] !== '1')
+        if ($user['isAdmin'] !== '1')
         {
-            $name = explode(" ", $auth['name']);
+            $name = explode(" ", $user['name']);
             $firstname = $name[0];
             $lastname = $name[1];
             header('location: ' . URL . 'students/view/' . $firstname . '.' . $lastname);
@@ -605,125 +588,26 @@ class Students extends Controller
 
     public function storeBulk()
     {
-        $auth = $this->authModel->getAuth();
-        if (!isset($auth))
+        $user = $this->authModel->getAuth();
+        if (!isset($user))
             header('location: ' . URL);
 
-        if ($auth['isAdmin'] !== '1')
+        if ($user['isAdmin'] !== '1')
         {
-            $name = explode(" ", $auth['name']);
+            $name = explode(" ", $user['name']);
             $firstname = $name[0];
             $lastname = $name[1];
             header('location: ' . URL . 'students/view/' . $firstname . '.' . $lastname);
         }
 
-        if (isset($_FILES['file']) && $_FILES['file']['error'] === 0) {
+        if (!isset($_POST['names']))
+            header('location: ' . URL . 'students/addBulk');
 
-            // UPLOAD DU FICHIER CSV, vérification et insertion en BASE
-            if($_FILES["file"]["type"] != "application/vnd.ms-excel") {
-                header('location: ' . URL . 'students/addBulk?error-file-type=1');
-            }
-            elseif(is_uploaded_file($_FILES['file']['tmp_name'])) {
-
-            	//Process the CSV file
-            	$handle = fopen($_FILES['file']['tmp_name'], "r");
-            	$data = fgetcsv($handle, 1000, ";"); //Remove if CSV file does not have column headings
-                if ($data[0] == 'login' || $data[0] == 'Login' || $data[0] == 'email' || $data[0] == 'mail')
-                {
-                    while (($data = fgetcsv($handle, 1000, ";")) !== FALSE) {
-                        $mail = $data[0];
-                        if (isset($mail) && $mail != '')
-                            $this->studentModel->createByMail($mail);
-                    }
-                    header('location: ' . URL . 'students?confirm-add-students=1');
-                }
-                else
-                    header('location: ' . URL . 'students/addBulk?error-header-csv=1');
-
-            }
-            else
-                header('location: ' . URL . 'students/addBulk?error-upload-file=1');
-
+        $names = explode("\n", $_POST['names']);
+        foreach ($names as $name) {
+            $parts = explode(" ", $name);
+            $this->studentModel->create($parts[0], $parts[1]);
         }
-        else {
-
-            // die(var_dump($_POST['names']));
-            if (!isset($_POST['names']) || $_POST['names'] == ''){
-                header('location: ' . URL . 'students/addBulk?error-empty-input=1');
-                die();
-            }
-
-            $names = explode("\n", $_POST['names']);
-            foreach ($names as $name) {
-                $parts = explode(" ", $name);
-                $this->studentModel->create($parts[0], $parts[1]);
-            }
-            header('location: ' . URL . 'students?confirm-add-students=1');
-        }
-    }
-
-    public function ajaxUpdateExcuse()
-    {
-        $auth = $this->authModel->getAuth();
-        if (!isset($auth))
-            header('location: ' . URL);
-
-        if ($auth['isAdmin'] !== '1')
-        {
-            $name = explode(" ", $auth['name']);
-            $firstname = $name[0];
-            $lastname = $name[1];
-            header('location: ' . URL . 'students/view/' . $firstname . '.' . $lastname);
-        }
-
-        if (isset($_GET['id']) && isset($_GET['reason']) && $_GET['reason'] !== "")
-        {
-            $this->dayModel->updateReason($_GET['id'], $_GET['reason']);
-            $date = Carbon::now("Europe/Paris");
-            $firstname = explode(".", $_GET['student'])[0];
-            $lastname = explode(".", $_GET['student'])[1];
-
-            $this->logsModel->create(
-                $auth['id'],
-                7,
-                $date->toDateTimeString() . " : " . $auth['name'] . " a modifié l'excuse \"" . $_GET['reason'] . "\" à " . ucfirst($firstname) . " " . ucfirst($lastname) . " du " . $_GET['day'] . "."
-            );
-
-            echo true;
-        }
-        else
-            echo false;
-    }
-
-    public function ajaxUpdateEditPang()
-    {
-        $auth = $this->authModel->getAuth();
-        if (!isset($auth))
-            header('location: ' . URL);
-
-        if ($auth['isAdmin'] !== '1')
-        {
-            $name = explode(" ", $auth['name']);
-            $firstname = $name[0];
-            $lastname = $name[1];
-            header('location: ' . URL . 'students/view/' . $firstname . '.' . $lastname);
-        }
-
-        if (isset($_GET['id']) && isset($_GET['reason']) && $_GET['reason'] !== "" && isset($_GET['diff']) && $_GET['diff'] !== "")
-        {
-            $this->editPangModel->updatePangsEdit($_GET['id'], $_GET['reason'], $_GET['diff']);
-            $date = Carbon::now("Europe/Paris");
-            $sign = ($_GET['diff'] > 0) ? "l'ajout" : 'le retrait';
-            $firstname = explode(".", $_GET['student'])[0];
-            $lastname = explode(".", $_GET['student'])[1];
-            $this->logsModel->create(
-                $auth['id'],
-                8,
-                $date->toDateTimeString() . " : " . $auth['name'] . " a modifié $sign de " . abs($_GET['diff']) . " pangs à " . ucfirst($firstname)  . " " .ucfirst($lastname) . "."
-            );
-            echo true;
-        }
-        else
-            echo false;
+        header('location: ' . URL . 'students');
     }
 }

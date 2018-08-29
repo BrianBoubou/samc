@@ -193,7 +193,7 @@ class Client
     {
         $parameters = array_merge(array(
             'response_type' => 'code',
-            'scope' => 'openid profile',
+            'scope' => 'openid profile user.read mail.read offline_access',
             'client_id'     => $this->client_id,
             'client_secret' => $this->client_secret,
             'redirect_uri'  => $redirect_uri,

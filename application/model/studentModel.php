@@ -56,9 +56,10 @@ class StudentModel
     public function getByMail($mail)
     {
         $name = explode(" ", preg_replace("#^([_A-Za-z-1-]{1,})\.([_A-Za-z-1-]{1,})@(.)+$#", "$1 $2", $mail));
+        //die(var_dump($name));
         $sql = "SELECT * FROM students WHERE first_name = :firstname AND last_name = :lastname";
         $query = $this->db->prepare($sql);
-        $query->execute([":firstname" => $name[0], ":lastname" => $name[1]]);
+        $query->execute([":firstname" => strtolower(trim($name[0])), ":lastname" => strtolower(trim($name[1]))]);
 
         if ($query->rowCount() > 0)
             return $query->fetchAll()[0];
