@@ -201,14 +201,14 @@ var myChart2 = new Chart (ctx2, {
         labels: days2,
         datasets: [{
             label: "CheckIns",
-            backgroundColor: "whitesmoke",
-            borderColor: "green",
+            backgroundColor: "#006060",
+            borderColor: "white",
             data: checkIn,
             fill: true
         }, {
             label: "checkOut",
             backgroundColor: "green",
-            borderColor: "green",
+            borderColor: "silver",
             data: checkOut,
             fill: true
         }]
@@ -316,7 +316,7 @@ $(".editChecks").click(function(e) {
         var that = $(this);
         $.ajax({
             type: "GET",
-            url:  url + "students/ajaxUpdateChecks?id=" + id + "&checkIn=" + newCheckInValue + "&checkOut=" + newCheckOutValue + "&student=<?php echo $student->first_name . '.' . $student->last_name; ?>&day=" + day,
+            url:  url + "students/ajaxUpdateChecks?id=" + id + "&checkIn=" + newCheckInValue + "&checkOut=" + newCheckOutValue + "&student=<?php echo $student->first_name . '.' . $student->last_name; ?>&day=" + day + "&studentId=<?php echo $student->id; ?>",
             success: function (data) {
                 if (data == true)
                 {

@@ -121,7 +121,7 @@ class DayModel
         }
         else if(isset($diff))
         {
-            // Todo 
+            // Todo
         }
     }
 
@@ -148,20 +148,26 @@ class DayModel
         }
     }
 
-    public function updateCheckInByDayId($id, $arrived)
+    public function updateCheckInByDayId($id, $arrived, $student_id)
     {
         $sql = "UPDATE days SET arrived_at = :arrived WHERE id = :id";
         $query = $this->db->prepare($sql);
         $parameters = array(':arrived' => $arrived, ":id" => $id);
         $query->execute($parameters);
+
+        $day = $this->getByDayId($id);
+        $this->proccessPangs($student_id, $day);
     }
 
-    public function updateCheckOutByDayId($id, $leaved)
+    public function updateCheckOutByDayId($id, $leaved, $student_id)
     {
         $sql = "UPDATE days SET leaved_at = :leaved WHERE id = :id";
         $query = $this->db->prepare($sql);
         $parameters = array(':leaved' => $leaved, ":id" => $id);
         $query->execute($parameters);
+
+        $day = $this->getByDayId($id);
+        $this->proccessPangs($student_id, $day);
     }
 
     public function updateCheckOut($dayString, $id, $leaved)

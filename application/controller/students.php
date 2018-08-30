@@ -82,7 +82,7 @@ class Students extends Controller
                             $entry[4] = $edit->id;
                             array_push($pangs, $entry);
                             $entry = [];
-                            $day->difference -= $edit->quantity;
+                            // $day->difference -= ($edit->quantity > 0) ? $edit->quantity : abs($edit->quantity);
                         }
                     }
                     if ($day->difference > 0) {
@@ -773,7 +773,8 @@ class Students extends Controller
 
         if (isset($_GET['id']) && isset($_GET['checkIn']) && $_GET['checkIn'] !== "")
         {
-            $this->dayModel->updateCheckInByDayId($_GET['id'], $_GET['checkIn']);
+            $student_id = $_GET['studentId'];
+            $this->dayModel->updateCheckInByDayId($_GET['id'], $_GET['checkIn'], $student_id);
             $date = Carbon::now("Europe/Paris");
             $firstname = explode(".", $_GET['student'])[0];
             $lastname = explode(".", $_GET['student'])[1];
@@ -787,7 +788,8 @@ class Students extends Controller
         }
         if (isset($_GET['id']) && isset($_GET['checkOut']) && $_GET['checkOut'] !== "")
         {
-            $this->dayModel->updateCheckOutByDayId($_GET['id'], $_GET['checkOut']);
+            $student_id = $_GET['studentId'];
+            $this->dayModel->updateCheckOutByDayId($_GET['id'], $_GET['checkOut'], $student_id);
             $date = Carbon::now("Europe/Paris");
             $firstname = explode(".", $_GET['student'])[0];
             $lastname = explode(".", $_GET['student'])[1];
