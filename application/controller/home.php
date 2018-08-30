@@ -132,6 +132,7 @@ class Home extends Controller
             die('Redirect');
 
             // Y6bt3nFSiNohk61tI6qGDvk6g9PXaepAEtYSyveaN/M= AzureAd secretkey
+            // ALTER TABLE `students` ADD `hors_parcours` INT NOT NULL DEFAULT '0' AFTER `email`;
         }
         else
         {

@@ -89,6 +89,14 @@ class StudentModel
         $query->execute($parameters);
     }
 
+    public function horsParcours($student_id, $hors_parcours = '1')
+    {
+        $sql = "UPDATE students SET hors_parcours = :hors_parcours WHERE id = :id";
+        $query = $this->db->prepare($sql);
+        $parameters = array(':hors_parcours' => $hors_parcours, ":id" => $student_id);
+        $query->execute($parameters);
+    }
+
 
 
 }

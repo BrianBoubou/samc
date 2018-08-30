@@ -1,7 +1,10 @@
 <div class="container">
     <div class="row">
-        <div class="col-md-8">
-            <h1 class="my-3"><?php echo ucfirst($student->first_name) ?> <?php echo ucfirst($student->last_name) ?> - <strong><?php echo $student->total ?></strong> pangs</h1>
+        <div class="col-md-8 <?php if($student->hors_parcours == '1'){ echo "alert alert-danger"; } ?>">
+            <h1 class="my-3"><?php echo ucfirst($student->first_name) ?> <?php echo ucfirst($student->last_name); ?> - <strong><?php echo $student->total ?></strong> pangs</h1>
+            <?php if(abs($student->total) <= 0 && $student->hors_parcours != '1') { ?>
+            <button id="removeStudent" class="btn btn-danger ml-4"><i class="fas fa-user-times" style="margin-right: 10px;"></i>Hors parcours</button>
+            <?php } ?>
         </div>
         <div class="col-md-2 offset-md-2">
             <img class="float-right" src="https://cdn.local.epitech.eu/userprofil/profilview/<?php echo $student->first_name ?>.<?php echo $student->last_name ?>.jpg">
@@ -26,14 +29,20 @@
                         <th>Jour</th>
                         <th>Arrivée</th>
                         <th>Départ</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php foreach ($days as $day) { ?>
                     <tr>
                         <td><?php echo $day->day ?></td>
-                        <td><?php echo $day->arrived_at ?></td>
-                        <td><?php echo $day->leaved_at ?></td>
+                        <td id="checkIn-<?php echo $day->id ?>"><?php echo $day->arrived_at ?></td>
+                        <td id="checkOut-<?php echo $day->id ?>"><?php echo $day->leaved_at ?></td>
+                        <?php if($auth['isAdmin'] === '1') { ?>
+                            <td><i data-checkin="<?php echo $day->arrived_at ?>" data-checkout="<?php echo $day->leaved_at ?>" data-day="<?php echo $day->day ?>" data-id="<?php echo $day->id ?>" class="fas fa-edit editChecks" style="cursor: pointer; margin-right: 8px;"></i></td>
+                        <?php } else { ?>
+                            <td></td>
+                        <?php } ?>
                     </tr>
                     <?php } ?>
                 </tbody>
@@ -42,6 +51,7 @@
                         <th>Jour</th>
                         <th>Arrivée</th>
                         <th>Départ</th>
+                        <th>Actions</th>
                     </tr>
                 </tfoot>
             </table>
@@ -64,7 +74,7 @@
                         <td <?php  if(isset($pang[4])) { ?> id="pangdiff-<?php echo $pang[4] ?>" <?php } ?> ><?php echo $pang[1] ?></td>
                         <td <?php  if(isset($pang[4])) { ?> id="pangreason-<?php echo $pang[4] ?>" <?php } ?>><?php echo $pang[3] ?></td>
                         <?php if($auth['isAdmin'] === '1' && isset($pang[4])) { ?>
-                            <td><i data-reason="<?php echo $pang[3] ?>" data-diff="<?php echo $pang[1] ?>" data-id="<?php echo $pang[4] ?>" id="editPangDiff" class="fas fa-edit" style="cursor: pointer; margin-right: 8px;"></i><a data-behavior='delete' href="<?php echo URL . 'students/deletePangs/' . $pang[4] ?>"><i style="margin-left: 8px; margin-right: 8px;" class="fas fa-trash-alt"></i></td>
+                            <td><i data-reason="<?php echo $pang[3] ?>" data-diff="<?php echo $pang[1] ?>" data-id="<?php echo $pang[4] ?>" class="fas fa-edit editPangDiff" style="cursor: pointer; margin-right: 8px;"></i><a data-behavior='delete' href="<?php echo URL . 'students/deletePangs/' . $pang[4] ?>"><i style="margin-left: 8px; margin-right: 8px;" class="fas fa-trash-alt"></i></td>
                         <?php } else { ?>
                             <td></td>
                         <?php } ?>
@@ -97,7 +107,7 @@
                         <td><?php echo $day->day ?></td>
                         <td id="reason-<?php echo $day->id ?>"><?php echo $day->reason ?></td>
                         <?php if($auth['isAdmin'] === '1') { ?>
-                        <td><i data-day="<?php echo $day->day; ?>" data-value="<?php echo $day->reason ?>" data-id="<?php echo $day->id ?>" id="editExcuse" class="fas fa-edit" style="cursor: pointer; margin-right: 8px;"></i><a data-behavior='delete' href="<?php echo URL . 'students/deleteJustify/' . $day->id ?>" style="margin-left: 8px; margin-right: 8px;"><i class="fas fa-trash-alt"></i></td>
+                        <td><i data-day="<?php echo $day->day; ?>" data-value="<?php echo $day->reason ?>" data-id="<?php echo $day->id ?>" class="fas fa-edit editExcuse" style="cursor: pointer; margin-right: 8px;"></i><a data-behavior='delete' href="<?php echo URL . 'students/deleteJustify/' . $day->id ?>" style="margin-left: 8px; margin-right: 8px;"><i class="fas fa-trash-alt"></i></td>
                         <?php } else { ?>
                         <td></td>
                         <?php } ?>
@@ -191,7 +201,7 @@ var myChart2 = new Chart (ctx2, {
         labels: days2,
         datasets: [{
             label: "CheckIns",
-            backgroundColor: "white",
+            backgroundColor: "whitesmoke",
             borderColor: "green",
             data: checkIn,
             fill: true
@@ -263,8 +273,71 @@ $("[data-behavior='delete']").on('click', function (e) {
             }
         });
 });
+$("#removeStudent").on('click', function (e) {
+    e.preventDefault();
 
-$("#editExcuse").click(function(e) {
+    swal({
+        title: 'Hors parcours',
+        text: 'Etes-vous sur de vouloir de vouloir définir cette étudiant comme étant hors parcours ?',
+        type: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#DD6B55',
+        confirmButtonText: 'Confirmer',
+        cancelButtonText: 'Annuler',
+        }).then((result) => {
+            if(result.value) {
+                $.ajax({
+                    url: "<?php echo URL . 'students/ajaxHorsParcours/' . $student->id; ?>",
+                    method: "post",
+                    success: function(data){
+                        window.location = "<?php echo URL ?>students";
+                    }
+                })
+            }
+        });
+});
+
+$(".editChecks").click(function(e) {
+    var id = $(this).data("id");
+    var day = $(this).data("day");
+    if ($(this).hasClass("fa-edit"))
+    {
+        $(this).removeClass("fa-edit");
+        $(this).addClass("fa-check-square");
+        var checkIn = $(this).data("checkin");
+        var checkOut = $(this).data("checkout");
+        console.log(checkIn, checkOut);
+        $("#checkIn-" + id).html("<input id=\"newCheckInValue" + id + "\" type=\"time\" value=\"" + checkIn + "\" style=\"width:96%; padding:0 2%;\" />");
+        $("#checkOut-" + id).html("<input id=\"newCheckOutValue" + id + "\" type=\"time\" value=\"" + checkOut + "\" style=\"width:96%; padding:0 2%;\" />");
+    }
+    else {
+        var newCheckInValue = $("#newCheckInValue" + id).val();
+        var newCheckOutValue = $("#newCheckOutValue" + id).val();
+        var that = $(this);
+        $.ajax({
+            type: "GET",
+            url:  url + "students/ajaxUpdateChecks?id=" + id + "&checkIn=" + newCheckInValue + "&checkOut=" + newCheckOutValue + "&student=<?php echo $student->first_name . '.' . $student->last_name; ?>&day=" + day,
+            success: function (data) {
+                if (data == true)
+                {
+                    that.data("checkin", newCheckInValue);
+                    that.data("checkout", newCheckOutValue);
+                    that.removeClass("fa-check-square");
+                    that.addClass("fa-edit");
+                    $("#newCheckInValue" + id).remove();
+                    $("#newCheckOutValue" + id).remove();
+                    $("#checkIn-" + id).text(newCheckInValue);
+                    $("#checkOut-" + id).text(newCheckOutValue);
+                }
+                else {
+                    console.log("Ajax request error after calling : ajaxUpdateChecks method into student controller");
+                }
+            }
+        });
+    }
+});
+
+$(".editExcuse").click(function(e) {
     var id = $(this).data("id");
     var day = $(this).data("day");
     if ($(this).hasClass("fa-edit"))
@@ -297,7 +370,7 @@ $("#editExcuse").click(function(e) {
     }
 });
 
-$("#editPangDiff").click(function(e) {
+$(".editPangDiff").click(function(e) {
     var id = $(this).data("id");
     var reason = $(this).data("reason");
     var diff = $(this).data("diff");

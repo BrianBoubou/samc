@@ -36,7 +36,7 @@ class Students extends Controller
     public function view($login)
     {
         $auth = $this->authModel->getAuth();
-        
+
         if (!isset($auth)) {
             header('location: ' . URL);
             die();
@@ -180,33 +180,63 @@ class Students extends Controller
             $student->first_name_data = '<a '. $tooltip .' href="' . URL . 'students/view/' . $student->first_name . '.' . $student->last_name . '">' . ucfirst($student->first_name) . '</a>';
             $student->last_name_data = '<a '. $tooltip .' href="' . URL . 'students/view/' . $student->first_name . '.' . $student->last_name . '">' . ucfirst($student->last_name) . '</a>';
 
-            if (is_object($student->checkIn) && $student->checkIn->day === \Carbon\Carbon::now()->toDateString() && $student->checkIn->arrived_at !== null) {
-                $checkIn = $student->checkIn->arrived_at;
-            } else {
-                $checkIn = '<form method="post" class="checkIn" action="' . URL . "students/checkIn" . '">
-                ' . '
-                <input type="hidden" name="id" value="' . $student->id . '">
-                <button type="submit" class="btn btn-success btn-sm">Check-In</button>
-                </form>';
-            }
-
-            if (is_object($student->checkIn) && $student->checkIn->day === \Carbon\Carbon::now()->toDateString() && $student->checkIn->leaved_at !== null) {
-                $checkOut = $student->checkIn->leaved_at;
-            } else {
+            if ($student->hors_parcours != '1')
+            {
                 if (is_object($student->checkIn) && $student->checkIn->day === \Carbon\Carbon::now()->toDateString() && $student->checkIn->arrived_at !== null) {
-                    $checkOut = '<form method="post" class="checkOut" action="' . URL . "students/checkOut" . '">
+                    $checkIn = $student->checkIn->arrived_at;
+                } else {
+                    $checkIn = '<form method="post" class="checkIn" action="' . URL . "students/checkIn" . '">
                     ' . '
                     <input type="hidden" name="id" value="' . $student->id . '">
-                    <button type="submit" class="btn btn-warning btn-sm">Check-Out</button>
+                    <button type="submit" class="btn btn-success btn-sm">Check-In</button>
                     </form>';
+                }
+
+                if (is_object($student->checkIn) && $student->checkIn->day === \Carbon\Carbon::now()->toDateString() && $student->checkIn->leaved_at !== null) {
+                    $checkOut = $student->checkIn->leaved_at;
                 } else {
-                    $checkOut = '';
+                    if (is_object($student->checkIn) && $student->checkIn->day === \Carbon\Carbon::now()->toDateString() && $student->checkIn->arrived_at !== null) {
+                        $checkOut = '<form method="post" class="checkOut" action="' . URL . "students/checkOut" . '">
+                        ' . '
+                        <input type="hidden" name="id" value="' . $student->id . '">
+                        <button type="submit" class="btn btn-warning btn-sm">Check-Out</button>
+                        </form>';
+                    } else {
+                        $checkOut = '';
+                    }
                 }
             }
+            else{
+                $checkIn = "hors parcours";
+                $checkOut = "hors parcours";
+            }
+
+
             array_push($data, ['id' => $student->id, 'first_name' => $student->first_name_data, 'last_name' => $student->last_name_data, 'pangs' => $student->pangs, 'checkin' => $checkIn, 'checkout' => $checkOut]);
         }
         $json = ['data' => $data];
         echo json_encode($json);
+    }
+
+    public function ajaxHorsParcours($student_id)
+    {
+        $auth = $this->authModel->getAuth();
+        if (!isset($auth)) {
+            echo json_encode(["error" => "disconnected"]);
+            die();
+        }
+
+        if ($auth['isAdmin'] !== '1')
+        {
+            $name = explode(" ", $auth['name']);
+            $firstname = $name[0];
+            $lastname = $name[1];
+            echo json_encode(['error' => 'not admin']);
+            die();
+        }
+
+        $this->studentModel->horsParcours($student_id);
+        echo json_encode(['success' => 'true']);
     }
 
     public function checkIn()
@@ -309,7 +339,7 @@ class Students extends Controller
             if ($_POST["arrived_at"] !== null && $_POST['arrived_at'] !== '') {
 
                 $this->dayModel->updateCheckIn(
-                    $date->toDateString(),
+                    $_POST['day'],
                     $student_id,
                     $_POST["arrived_at"]
                 );
@@ -323,7 +353,7 @@ class Students extends Controller
 
             if ($_POST["leaved_at"] !== null && $_POST['leaved_at'] !== '') {
                 $this->dayModel->updateCheckOut(
-                    $date->toDateString(),
+                    $_POST['day'],
                     $student_id,
                     $_POST["leaved_at"]
                 );
@@ -331,7 +361,7 @@ class Students extends Controller
                 $this->logsModel->create(
                     $auth['id'],
                     2,
-                    $date->toDateTimeString() . " : " . $auth['name'] . " a modifié l'heure de pointage de " . ucfirst($student->first_name)  . " " .ucfirst($student->last_name) . " de $day->arrived_at à " . $_POST["leaved_at"] . ":00 le " . $_POST['day']
+                    $date->toDateTimeString() . " : " . $auth['name'] . " a modifié l'heure de dépointage de " . ucfirst($student->first_name)  . " " .ucfirst($student->last_name) . " de $day->leaved_at à " . $_POST["leaved_at"] . ":00 le " . $_POST['day']
                 );
             }
         }
@@ -725,5 +755,52 @@ class Students extends Controller
         }
         else
             echo false;
+    }
+
+    public function ajaxUpdateChecks()
+    {
+        $auth = $this->authModel->getAuth();
+        if (!isset($auth))
+            header('location: ' . URL);
+
+        if ($auth['isAdmin'] !== '1')
+        {
+            $name = explode(" ", $auth['name']);
+            $firstname = $name[0];
+            $lastname = $name[1];
+            header('location: ' . URL . 'students/view/' . $firstname . '.' . $lastname);
+        }
+
+        if (isset($_GET['id']) && isset($_GET['checkIn']) && $_GET['checkIn'] !== "")
+        {
+            $this->dayModel->updateCheckInByDayId($_GET['id'], $_GET['checkIn']);
+            $date = Carbon::now("Europe/Paris");
+            $firstname = explode(".", $_GET['student'])[0];
+            $lastname = explode(".", $_GET['student'])[1];
+            $day = $this->dayModel->getByDayId($_GET['id']);
+
+            $this->logsModel->create(
+                $auth['id'],
+                2,
+                $date->toDateTimeString() . " : " . $auth['name'] . " a modifié l'heure de pointage de " . ucfirst($firstname)  . " " .ucfirst($lastname) . " de $day->arrived_at à " . $_GET["checkIn"] . ":00 le " . $_GET['day']
+            );
+        }
+        if (isset($_GET['id']) && isset($_GET['checkOut']) && $_GET['checkOut'] !== "")
+        {
+            $this->dayModel->updateCheckOutByDayId($_GET['id'], $_GET['checkOut']);
+            $date = Carbon::now("Europe/Paris");
+            $firstname = explode(".", $_GET['student'])[0];
+            $lastname = explode(".", $_GET['student'])[1];
+            $day = $this->dayModel->getByDayId($_GET['id']);
+
+            $this->logsModel->create(
+                $auth['id'],
+                2,
+                $date->toDateTimeString() . " : " . $auth['name'] . " a modifié l'heure de dépointage de " . ucfirst($firstname)  . " " .ucfirst($lastname) . " de $day->leaved_at à " . $_GET["checkOut"] . ":00 le " . $_GET['day']
+            );
+        }
+
+        echo true;
+
     }
 }

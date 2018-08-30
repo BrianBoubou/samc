@@ -39,10 +39,11 @@ $(".action").click(function(e) {
     // window.location = '' + $(this).attr('id') + '?' + str;
     str = '?';
     rows = table.rows( { selected: true } ).data();
-    console.log(rows);
     $.each(rows, function(index, value) {
         str = str + 'students[]=' + value.id + '&';
     });
-    console.log(str);
-    window.location = url + "students/" + $(this).attr('id') + str;
+    if ($(this).attr('id') == "justifyFast")
+        window.location = url + "students/justify" + str + "reason=En attente de justificatif";
+    else
+        window.location = url + "students/" + $(this).attr('id') + str;
 });

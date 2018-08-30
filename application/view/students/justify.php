@@ -34,7 +34,7 @@
 
                         <div class="form-group">
                             <label for="reason">Raison</label>
-                            <textarea id="reason" class="form-control" name="reason" required></textarea>
+                            <textarea id="reason" class="form-control" name="reason" required><?php if(isset($_GET['reason'])) { echo $_GET['reason']; } ?></textarea>
                         </div>
 
                         <div class="form-group">

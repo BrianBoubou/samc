@@ -113,16 +113,16 @@ class DayModel
     public function update($id, $diff = null, $justify = 0, $reason = null)
     {
         if($justify)
-            {
-                $sql = "UPDATE days SET excused = :excused, reason = :reason WHERE id = :id";
-                $query = $this->db->prepare($sql);
-                $parameters = array(':excused' => 1, ':reason' => $reason, ":id" => $id);
-                $query->execute($parameters);
-            }
+        {
+            $sql = "UPDATE days SET excused = :excused, reason = :reason WHERE id = :id";
+            $query = $this->db->prepare($sql);
+            $parameters = array(':excused' => 1, ':reason' => $reason, ":id" => $id);
+            $query->execute($parameters);
+        }
         else if(isset($diff))
-            {
-
-            }
+        {
+            // Todo 
+        }
     }
 
     public function updateCheckIn($dayString, $id, $arrived)
@@ -146,6 +146,22 @@ class DayModel
 
             $this->proccessPangs($id, $day);
         }
+    }
+
+    public function updateCheckInByDayId($id, $arrived)
+    {
+        $sql = "UPDATE days SET arrived_at = :arrived WHERE id = :id";
+        $query = $this->db->prepare($sql);
+        $parameters = array(':arrived' => $arrived, ":id" => $id);
+        $query->execute($parameters);
+    }
+
+    public function updateCheckOutByDayId($id, $leaved)
+    {
+        $sql = "UPDATE days SET leaved_at = :leaved WHERE id = :id";
+        $query = $this->db->prepare($sql);
+        $parameters = array(':leaved' => $leaved, ":id" => $id);
+        $query->execute($parameters);
     }
 
     public function updateCheckOut($dayString, $id, $leaved)

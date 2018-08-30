@@ -12,6 +12,7 @@
                         <a class="dropdown-item action" id="editChecks" href="#"><i class="pr-2 fas fa-user-clock"></i> Editer Check-in / out</a>
                         <a class="dropdown-item action" id="editPangs" href="#"><i class="pr-2 far fa-chart-bar"></i> Ajouter / retirer pangs</a>
                         <a class="dropdown-item action" id="justify" href="#"><i class="pr-2 fas fa-file-medical"></i> Ajouter une excuse</a>
+                        <a class="dropdown-item action" id="justifyFast" href="#"><i class="pr-2 fas fa-file-medical"></i> En attente de justificatif</a>
                     </div>
                 </div>
             </div>
@@ -93,6 +94,12 @@ var table = $('#ajaxStudents')
 .on( 'error.dt', function ( e, settings, techNote, message ) {
             window.location = "<?php echo URL ?>?disconnected=1";
     } )
+    .on( 'draw.dt', function (e, settings) {
+    for (var i = 0; i < settings.aoData.length; i++) {
+        if (settings.aoData[i]._aData.checkin == 'hors parcours')
+            settings.aoData[i].nTr.style.backgroundColor = "#f97c87";
+    }
+} )
 .DataTable({
     ajax: {
             url: "<?php echo URL; ?>students/jsonStudentsData"
