@@ -82,7 +82,7 @@ class Students extends Controller
                             $entry[4] = $edit->id;
                             array_push($pangs, $entry);
                             $entry = [];
-                            // $day->difference -= ($edit->quantity > 0) ? $edit->quantity : abs($edit->quantity);
+                            $day->difference -= $edit->quantity;
                         }
                     }
                     if ($day->difference > 0) {
@@ -774,7 +774,6 @@ class Students extends Controller
         if (isset($_GET['id']) && isset($_GET['checkIn']) && $_GET['checkIn'] !== "")
         {
             $student_id = $_GET['studentId'];
-            $this->dayModel->updateCheckInByDayId($_GET['id'], $_GET['checkIn'], $student_id);
             $date = Carbon::now("Europe/Paris");
             $firstname = explode(".", $_GET['student'])[0];
             $lastname = explode(".", $_GET['student'])[1];
@@ -785,11 +784,12 @@ class Students extends Controller
                 2,
                 $date->toDateTimeString() . " : " . $auth['name'] . " a modifié l'heure de pointage de " . ucfirst($firstname)  . " " .ucfirst($lastname) . " de $day->arrived_at à " . $_GET["checkIn"] . ":00 le " . $_GET['day']
             );
+            
+            $this->dayModel->updateCheckInByDayId($_GET['id'], $_GET['checkIn'], $student_id);
         }
         if (isset($_GET['id']) && isset($_GET['checkOut']) && $_GET['checkOut'] !== "")
         {
             $student_id = $_GET['studentId'];
-            $this->dayModel->updateCheckOutByDayId($_GET['id'], $_GET['checkOut'], $student_id);
             $date = Carbon::now("Europe/Paris");
             $firstname = explode(".", $_GET['student'])[0];
             $lastname = explode(".", $_GET['student'])[1];
@@ -800,6 +800,8 @@ class Students extends Controller
                 2,
                 $date->toDateTimeString() . " : " . $auth['name'] . " a modifié l'heure de dépointage de " . ucfirst($firstname)  . " " .ucfirst($lastname) . " de $day->leaved_at à " . $_GET["checkOut"] . ":00 le " . $_GET['day']
             );
+
+            $this->dayModel->updateCheckOutByDayId($_GET['id'], $_GET['checkOut'], $student_id);
         }
 
         echo true;

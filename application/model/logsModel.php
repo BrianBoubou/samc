@@ -30,8 +30,8 @@ class LogsModel
             foreach ($log as $key => &$value) {
                 if ($key === "user_id")
                 {
-                    $user = $this->authModel->getAuth();
-                    $value = $user['name'];
+                    $user = $this->authModel->getById($value);
+                    $value = $user->name;
                 }
             }
         }

@@ -21,12 +21,12 @@ class AuthModel
             $query = $this->db->prepare($sql);
             $query->execute([":email" => $_SESSION['auth']['email'], ":token" => $_SESSION['auth']['token']]);
 
-        if ($query->rowCount() > 0) {
-            $_SESSION['auth']['check'] = true;
-            return $_SESSION['auth'];
-        }
-        else
-            return null;
+            if ($query->rowCount() > 0) {
+                $_SESSION['auth']['check'] = true;
+                return $_SESSION['auth'];
+            }
+            else
+                return null;
         }
         else
             return null;
