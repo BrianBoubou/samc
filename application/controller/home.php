@@ -187,6 +187,9 @@ class Home extends Controller
     public function logout()
     {
         unset($_SESSION['auth']);
+        unset($_COOKIE['samcAuth']);
+        setcookie('samcAuth', '', time() - 3600);
+
         header('location: ' . URL);
     }
 
