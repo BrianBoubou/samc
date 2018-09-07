@@ -30,11 +30,11 @@ class AuthModel
             else
                 return null;
         }
-        else if (isset($_COOKIE['samcAuth']) && !empty($_COOKIE['samcAuth']))
+        else if (isset($_COOKIE['samcAuthEmail']) && !empty($_COOKIE['samcAuthEmail']))
         {
             $sql = "SELECT * FROM users WHERE email = :email AND remember_token = :token";
             $query = $this->db->prepare($sql);
-            $query->execute([":email" => $_COOKIE['samcAuth']['email'], ":token" => $_COOKIE['samcAuth']['token']]);
+            $query->execute([":email" => $_COOKIE['samcAuthEmail'], ":token" => $_COOKIE['samcAuthToken']]);
 
             if ($query->rowCount() > 0)
             {
@@ -67,7 +67,8 @@ class AuthModel
         $query->execute($parameters);
 
         $_SESSION['auth'] = ['name' => $user->name, 'isAdmin' => $user->admin, 'token' => $token, 'email' => $user->email, "id" => $user->id];
-        setcookie('samcAuth', ["email" => $user->email, "token" => $token], time()+60*60*24*30);
+        setcookie('samcAuthEmail', $user->email, time()+60*60*24*30, '/');
+        setcookie('samcAuthToken', $token, time()+60*60*24*30, '/');
         if (!isset($user->password) || $user->password == "")
             $_SESSION['auth']['HavePassword'] = 0;
         else
