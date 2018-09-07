@@ -278,7 +278,7 @@ $("#removeStudent").on('click', function (e) {
 
     swal({
         title: 'Hors parcours',
-        text: 'Etes-vous sur de vouloir de vouloir définir cette étudiant comme étant hors parcours ?',
+        text: 'Etes-vous sur de vouloir définir cette étudiant comme étant hors parcours ?',
         type: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#DD6B55',

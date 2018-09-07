@@ -16,13 +16,40 @@ class AuthModel
 
     public function getAuth()
     {
-        if (isset($_SESSION['auth'])) {
+        if (isset($_SESSION['auth']))
+        {
             $sql = "SELECT * FROM users WHERE email = :email AND remember_token = :token";
             $query = $this->db->prepare($sql);
             $query->execute([":email" => $_SESSION['auth']['email'], ":token" => $_SESSION['auth']['token']]);
 
-            if ($query->rowCount() > 0) {
+            if ($query->rowCount() > 0)
+            {
                 $_SESSION['auth']['check'] = true;
+                return $_SESSION['auth'];
+            }
+            else
+                return null;
+        }
+        else if (isset($_COOKIE['samcAuth']) && !empty($_COOKIE['samcAuth']))
+        {
+            $sql = "SELECT * FROM users WHERE email = :email AND remember_token = :token";
+            $query = $this->db->prepare($sql);
+            $query->execute([":email" => $_COOKIE['samcAuth']['email'], ":token" => $_COOKIE['samcAuth']['token']]);
+
+            if ($query->rowCount() > 0)
+            {
+                $user = $query->fetchAll()[0];
+
+                $_SESSION['auth'] = ['name' => $user->name, 'isAdmin' => $user->admin, 'token' => $user->remember_token, 'email' => $user->email, "id" => $user->id];
+                $_SESSION['auth']['check'] = true;
+
+                if (!isset($user->password) || $user->password == "")
+                    $_SESSION['auth']['HavePassword'] = 0;
+                else
+                {
+                    $_SESSION['auth']['HavePassword'] = 1;
+                    $_SESSION['auth']['passwordHash'] = $user->password;
+                }
                 return $_SESSION['auth'];
             }
             else
@@ -40,6 +67,7 @@ class AuthModel
         $query->execute($parameters);
 
         $_SESSION['auth'] = ['name' => $user->name, 'isAdmin' => $user->admin, 'token' => $token, 'email' => $user->email, "id" => $user->id];
+        setcookie('samcAuth', ["email" => $user->email, "token" => $token], time()+60*60*24*30);
         if (!isset($user->password) || $user->password == "")
             $_SESSION['auth']['HavePassword'] = 0;
         else
@@ -53,7 +81,7 @@ class AuthModel
     {
         $sql = "UPDATE users SET password = :pwd WHERE id = :id";
         $query = $this->db->prepare($sql);
-        $parameters = array(':pwd' => sha1($password), ':id' => $user->id);
+        $parameters = array(':pwd' => sha1($password), ':id' => $id);
         $query->execute($parameters);
     }
 
