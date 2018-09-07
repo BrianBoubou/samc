@@ -53,7 +53,7 @@ class AuthModel
     {
         $sql = "UPDATE users SET password = :pwd WHERE id = :id";
         $query = $this->db->prepare($sql);
-        $parameters = array(':pwd' => sha1($password), ':id' => $user->id);
+        $parameters = array(':pwd' => $password, ':id' => $id);
         $query->execute($parameters);
     }
 

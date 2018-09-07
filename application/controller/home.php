@@ -71,13 +71,13 @@ class Home extends Controller
             $lastname = $name[1];
             header('location: ' . URL . 'students/view/' . $firstname . '.' . $lastname);
         }
-
+        //die(var_dump($auth['id'], $_POST['newPassword'], $auth['HavePassword']));
 
         if (isset($_POST['oldPassword']) && $_POST['oldPassword'] !== "" && $_POST['newPassword'] !== "" && $_POST['newPasswordConfirm'] !== "" && $_POST['newPassword'] === $_POST['newPasswordConfirm'] && $auth['HavePassword'])
         {
             if (sha1($_POST['oldPassword']) === $auth['passwordHash'])
             {
-                $this->authModel->updatePassword($auth['id'], $_POST['newPassword']);
+                $this->authModel->updatePassword($auth['id'], sha1($_POST['newPassword']));
                 $_SESSION['auth']['passwordHash'] = sha1($_POST['newPassword']);
                 header('location: ' . URL . 'students?confirm-edit-password=1');
             }
@@ -87,7 +87,7 @@ class Home extends Controller
         }
         else if ($_POST['newPassword'] !== "" && $_POST['newPasswordConfirm'] !== "" && $_POST['newPassword'] === $_POST['newPasswordConfirm'] && !$auth['HavePassword'])
         {
-            $this->authModel->updatePassword($auth['id'], $_POST['newPassword']);
+            $this->authModel->updatePassword($auth['id'], sha1($_POST['newPassword']));
             $_SESSION['auth']['passwordHash'] = sha1($_POST['newPassword']);
             $_SESSION['auth']['HavePassword'] = 1;
             header('location: ' . URL . 'students?confirm-edit-password=1');
